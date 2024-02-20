@@ -1,2 +1,3 @@
-# blockcraft
-GitHub hosted NPM package for a Blockchain library
+# Blockcraft
+
+Welcome to the adventurous journey of developing Blockcraft! This project is more than just building another blockchain toolkit; it's an expedition into the heart of blockchain technology. The goal with Blockcraft is to explore and understand the fundamental aspects of blockchain, from its core principles to its intricate workings. By crafting this toolkit from scratch, it will not only result in a versatile and useful tool for development but also a deep comprehension in the mechanisms that drive blockchain applications. Join in and embark on this enlightening path to unravel and master the complexities of blockchain technology.
