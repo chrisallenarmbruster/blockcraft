@@ -1,9 +1,10 @@
-import ProofOfWorkConsensus from "./ProofOfWorkConsensus";
+import ProofOfWorkConsensus from "./ProofOfWorkConsensus.js";
+import StandardMiningReward from "./StandardMiningAward.js";
 
 class Blockchain {
   constructor(
     consensusMechanism = new ProofOfWorkConsensus({ difficulty: 4 }),
-    incentiveModel = new StandardMiningReward(),
+    incentiveModel = new StandardMiningReward({ fixedReward: 50 }),
     config = {}
   ) {
     this.consensusMechanism = consensusMechanism;
@@ -26,7 +27,10 @@ class Blockchain {
       );
 
       this.chain.push(block);
-      this.incentiveModel.applyIncentive(block);
+
+      const reward = this.incentiveModel.calculateReward(block);
+      this.incentiveModel.distributeReward(block, reward);
+
       this.onChainUpdateCallback(this.chain);
     } catch (error) {
       console.error("Failed to add block:", error);
@@ -39,7 +43,7 @@ class Blockchain {
       const previousBlock = this.chain[i - 1];
 
       if (
-        currentBlock.hash !== currentBlock.calculateHash() ||
+        currentBlock.hash !== currentBlock.computeHash() ||
         currentBlock.previousHash !== previousBlock.hash
       ) {
         return false;
@@ -54,7 +58,7 @@ class Blockchain {
       const currentBlock = this.chain[i];
       const previousBlock = this.chain[i - 1];
 
-      if (currentBlock.hash !== currentBlock.calculateHash()) {
+      if (currentBlock.hash !== currentBlock.computeHash()) {
         errors.push(`Block ${i} has been tampered with.`);
       }
 
@@ -66,7 +70,7 @@ class Blockchain {
         errors.push(`Block ${i} has an invalid index.`);
       }
 
-      if (currentBlock.timestamp <= previousBlock.timestamp) {
+      if (currentBlock.timestamp < previousBlock.timestamp) {
         errors.push(`Block ${i} has an invalid timestamp.`);
       }
 
@@ -108,3 +112,5 @@ class Blockchain {
     //export chain to storage
   }
 }
+
+export default Blockchain;

@@ -1,4 +1,4 @@
-import ProofOfWorkBlock from "./ProofOfWorkBlock";
+import ProofOfWorkBlock from "./ProofOfWorkBlock.js";
 
 class ProofOfWorkConsensus {
   constructor(config) {
@@ -21,7 +21,7 @@ class ProofOfWorkConsensus {
       previousHash,
       difficulty: this.difficulty,
     });
-
+    console.log("\nMining block, please standby...");
     await newBlock.mineBlock();
     return newBlock;
   }

@@ -10,13 +10,6 @@ class Block {
   }
 
   computeHash() {
-    const stringOfThisBlock = JSON.stringify(this);
-    const hash = crypto.createHash("SHA256");
-    hash.update(stringOfThisBlock);
-    return hash.digest("hex");
-  }
-
-  computeHash() {
     return crypto
       .createHash("SHA256")
       .update(

@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import Block from "./Block";
+import Block from "./Block.js";
 
 //overrides the computeHash method to include the nonce and difficulty
 //adds a mineBlock method to mine the block
@@ -35,7 +35,11 @@ class ProofOfWorkBlock extends Block {
       }
     }
 
-    console.log(`Block mined: ${this.hash}`);
+    console.log(
+      `\nBlock mined in ${(Date.now() - this.timestamp) / 1000} seconds: ${
+        this.hash
+      }`
+    );
   }
 }
 
