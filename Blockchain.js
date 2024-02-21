@@ -1,4 +1,4 @@
-import ProofOfWorkConsensus from "./ProofOfWorkConsensus.js";
+import ProofOfWorkConsensus from "./ProofOfWorkConsensus";
 
 class Blockchain {
   constructor(
@@ -16,16 +16,21 @@ class Blockchain {
     return this.consensusMechanism.createGenesisBlock();
   }
 
-  addBlock(data) {
-    const previousBlock = this.getLatestBlock();
-    const block = this.consensusMechanism.createBlock(
-      this.chain.length,
-      data,
-      previousBlock.hash
-    );
-    this.chain.push(block);
-    this.incentiveModel.applyIncentive(block);
-    this.onChainUpdateCallback(this.chain);
+  async addBlock(data) {
+    try {
+      const previousBlock = this.getLatestBlock();
+      const block = await this.consensusMechanism.createBlock(
+        this.chain.length,
+        data,
+        previousBlock.hash
+      );
+
+      this.chain.push(block);
+      this.incentiveModel.applyIncentive(block);
+      this.onChainUpdateCallback(this.chain);
+    } catch (error) {
+      console.error("Failed to add block:", error);
+    }
   }
 
   isChainValid() {

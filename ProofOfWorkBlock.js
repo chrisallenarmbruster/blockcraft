@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import Block from "./Block.js";
+import Block from "./Block";
 
 //overrides the computeHash method to include the nonce and difficulty
 //adds a mineBlock method to mine the block
@@ -23,13 +23,16 @@ class ProofOfWorkBlock extends Block {
       .digest("hex");
   }
 
-  mineBlock() {
+  async mineBlock() {
     while (
       this.hash.substring(0, this.difficulty) !==
       Array(this.difficulty + 1).join("0")
     ) {
       this.nonce++;
       this.hash = this.computeHash();
+      if (this.nonce % 1000 === 0) {
+        await new Promise((resolve) => setImmediate(resolve));
+      }
     }
 
     console.log(`Block mined: ${this.hash}`);
