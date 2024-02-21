@@ -1,6 +1,9 @@
 import crypto from "crypto";
 import Block from "./Block.js";
 
+//overrides the computeHash method to include the nonce and difficulty
+//adds a mineBlock method to mine the block
+
 class ProofOfWorkBlock extends Block {
   constructor({ index, data, previousHash, timestamp, difficulty = 4 }) {
     super({ index, data, previousHash, timestamp });
