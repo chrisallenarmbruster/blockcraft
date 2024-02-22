@@ -1,16 +1,23 @@
 import ProofOfWorkConsensus from "./ProofOfWorkConsensus.js";
 import StandardMiningReward from "./StandardMiningAward.js";
+import DataHandler from "./DataHandler.js";
 
 class Blockchain {
   constructor(
     consensusMechanism = new ProofOfWorkConsensus({ difficulty: 4 }),
     incentiveModel = new StandardMiningReward({ fixedReward: 50 }),
+    dataHandler = new DataHandler(),
     config = {}
   ) {
     this.consensusMechanism = consensusMechanism;
     this.incentiveModel = incentiveModel;
+    this.dataHandler = dataHandler;
     this.config = config;
-    this.chain = [this.consensusMechanism.createGenesisBlock()];
+    this.consensusMechanism.setBlockchain(this);
+    this.incentiveModel.setBlockchain(this);
+    this.dataHandler.setBlockchain(this);
+    this.chain = [this.createGenesisBlock()];
+    this.onChainUpdateCallback = () => {};
   }
 
   createGenesisBlock() {

@@ -4,7 +4,7 @@ import StandardMiningReward from "./StandardMiningAward.js";
 
 async function testBlockchain() {
   let testBlockchain = new Blockchain(
-    new ProofOfWorkConsensus({ difficulty: 6 }),
+    new ProofOfWorkConsensus({ difficulty: 2 }),
     new StandardMiningReward({ fixedReward: 100 })
   );
 

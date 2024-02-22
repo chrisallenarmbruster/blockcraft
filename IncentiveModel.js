@@ -1,6 +1,11 @@
 class IncentiveModel {
   constructor(config) {
     this.config = config;
+    this.blockchain = null;
+  }
+
+  setBlockchain(blockchainInstance) {
+    this.blockchain = blockchainInstance;
   }
 
   calculateReward(block) {

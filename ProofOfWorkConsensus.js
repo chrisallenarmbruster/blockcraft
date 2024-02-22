@@ -1,7 +1,9 @@
+import ConsensusMechanism from "./ConsensusMechanism.js";
 import ProofOfWorkBlock from "./ProofOfWorkBlock.js";
 
-class ProofOfWorkConsensus {
+class ProofOfWorkConsensus extends ConsensusMechanism {
   constructor(config) {
+    super(config);
     this.difficulty = config.difficulty || 4;
   }
 
