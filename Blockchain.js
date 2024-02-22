@@ -24,6 +24,14 @@ class Blockchain {
     return this.consensusMechanism.createGenesisBlock();
   }
 
+  async addEntry(entry) {
+    try {
+      await this.dataHandler.addPendingEntry(entry);
+    } catch (error) {
+      console.error("Failed to add entry:", error);
+    }
+  }
+
   async addBlock(data) {
     try {
       const previousBlock = this.getLatestBlock();
