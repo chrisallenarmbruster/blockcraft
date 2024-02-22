@@ -32,7 +32,8 @@ class DataHandler {
   }
 
   validatePendingEntry(entry) {
-    return true;
+    entry.data.toUpperCase().includes("BOGUS");
+    return entry.data.toUpperCase().includes("BOGUS") ? false : true;
     // return this.config.validateEntry(entry);
     // Placeholder for entry validation
     // This method can be overridden by subclasses to implement specific entry validation logic

@@ -21,13 +21,20 @@ async function testBlockchain() {
   );
 
   await testBlockchain.addEntry({ data: "Entry 1" });
+  await testBlockchain.addEntry({ data: "Bogus Entry" });
+  await testBlockchain.addEntry({ data: "Bogus Entry" });
   await testBlockchain.addEntry({ data: "Entry 2" });
   await testBlockchain.addEntry({ data: "Entry 3" });
+  await testBlockchain.addEntry({ data: "Bogus Entry" });
   await testBlockchain.addEntry({ data: "Entry 4" });
   await testBlockchain.addEntry({ data: "Entry 5" });
+  await testBlockchain.addEntry({ data: "Bogus Entry" });
   await testBlockchain.addEntry({ data: "Entry 6" });
   await testBlockchain.addEntry({ data: "Entry 7" });
   await testBlockchain.addEntry({ data: "Entry 8" });
+  await testBlockchain.addEntry({ data: "Bogus Entry" });
+  await testBlockchain.addEntry({ data: "Bogus Entry" });
+  await testBlockchain.addEntry({ data: "Bogus Entry" });
   await testBlockchain.addEntry({ data: "Entry 9" });
   await testBlockchain.addEntry({ data: "Entry 10" });
 
