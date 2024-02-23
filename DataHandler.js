@@ -1,3 +1,22 @@
+/**
+ * DataHandler.js
+ *
+ * This file defines the DataHandler class, which is responsible for managing the data entries in our blockchain implementation.
+ *
+ * This class or its subclasses are passed into the Blockchain class to handle the data entries.
+ *
+ * The DataHandler class is constructed with a configuration object and maintains a list of pending entries that are waiting to be added to the blockchain.
+ *
+ * The addPendingEntry method is used to add a new entry to the pending entries. It validates the entry, transforms it, and adds it to the list. If the conditions for adding a new block are met, it triggers the creation of a new block with the pending entries.
+ *
+ * The getPendingEntries and clearPendingEntries methods are used to retrieve and clear the pending entries, respectively.
+ *
+ * The validatePendingEntry method is used to validate a pending entry. It should be overridden by subclasses to implement specific validation logic.
+ *
+ * Treat thjs as a base class for the DataHandler. It should be extended by subclasses to implement specific data handling logic.
+ *
+ */
+
 class DataHandler {
   constructor(config) {
     this.config = config;

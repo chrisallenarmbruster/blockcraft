@@ -1,3 +1,5 @@
+*.js.md
+
 # Logs
 logs
 *.log

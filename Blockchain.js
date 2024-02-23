@@ -1,3 +1,29 @@
+/**
+ * Blockchain.js
+ *
+ * This file defines the Blockchain class, which is the main structure for storing and managing data in this blockchain implementation.
+ *
+ * The Blockchain class uses a consensus mechanism, an incentive model, and a data handler, all of which are passed in as parameters to the constructor.
+ * This separates the concerns of establishing consensus to create valid blocks, incentivizing participants, and handling data from each other and the main blockchain logic.
+ * This is paving the way for a library of consensus mechanisms, incentive models, and data handlers that can be mixed and matched to create custom blockchains.
+ * You may create your own custom classes extended from the included base classes that implement these roles and pass them into the Blockchain class.
+ *
+ * By default, it uses the ProofOfWorkConsensus, StandardMiningReward, and DataHandler classes for these roles.
+ *
+ * The Blockchain class also allows for a configuration object to be passed in for additional customization.
+ *
+ * The consensus mechanism, incentive model, and data handler are all given a reference to the Blockchain instance they belong to.
+ *
+ * The Blockchain starts with a single block, the genesis block, created by the consensus mechanism.
+ *
+ * The consensus mechanism is also used to agree on and create new blocks, calling on the Blockchain class to add them to the chain.
+ *
+ * The addEntry method is used to add new data to the blockchain. It passes the data to the data handler, which handles adding it to the pending entries and determines when a new block should be added.
+ *
+ * After a block is added to the blockchain, the incentive model's calculateReward and distributeReward methods are called to calculate and distribute incentives to the participants for the block.
+ *
+ */
+
 import ProofOfWorkConsensus from "./ProofOfWorkConsensus.js";
 import StandardMiningReward from "./StandardMiningAward.js";
 import DataHandler from "./DataHandler.js";

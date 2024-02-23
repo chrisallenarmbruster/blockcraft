@@ -1,9 +1,20 @@
+/**
+ * ProofOfWorkBlock.js
+ *
+ * This file defines the ProofOfWorkBlock class, which extends the Block class and adds proof-of-work functionality.
+ *
+ * This class is used by the ProofOfWorkConsensus class to create blocks with proof-of-work functionality.
+ *
+ * Each ProofOfWorkBlock has an index, data, previousHash, timestamp, difficulty, nonce, and hash. The nonce is a number that is incremented in the process of mining the block.
+ *
+ * The ProofOfWorkBlock class overrides the computeHash method of the Block class to include the nonce in the hash computation.
+ *
+ * The mineBlock method is used to mine the block by incrementally increasing the nonce and recomputing the hash until a hash that meets the difficulty requirement is found. The difficulty requirement is that the first 'difficulty' number of characters of the hash must be zeros.
+ *
+ */
+
 import crypto from "crypto";
 import Block from "./Block.js";
-
-//overrides the computeHash method to include the nonce and difficulty
-//adds a mineBlock method to mine the block
-
 class ProofOfWorkBlock extends Block {
   constructor({ index, data, previousHash, timestamp, difficulty = 4 }) {
     super({ index, data, previousHash, timestamp });
