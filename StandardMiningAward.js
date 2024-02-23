@@ -22,17 +22,23 @@ class StandardMiningReward extends IncentiveModel {
     this.fixedReward = config.fixedReward || 50;
   }
 
-  calculateReward(block) {
+  calculateIncentive(block) {
     return this.fixedReward;
   }
 
-  distributeReward(block, reward) {
+  distributeIncentive(block, incentive) {
     // Distribute the reward to the miner (block creator)
     // In practice, this would involve creating a transaction
     // For demonstration, just logging the distribution
-    console.log(`Distributing ${reward} to miner of block ${block.index}`);
     // Update the blockchain state to reflect this reward distribution
     // This might involve updating the miner's balance or adding a transaction to the block
+    const miner = "miner"; // Replace with logic to determine who mined the block
+    return {
+      block,
+      incentive,
+      miner,
+      message: `Distributed ${incentive} to ${miner}.`,
+    };
   }
 }
 

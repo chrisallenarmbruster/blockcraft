@@ -45,12 +45,6 @@ class ProofOfWorkBlock extends Block {
         await new Promise((resolve) => setImmediate(resolve));
       }
     }
-
-    console.log(
-      `\nBlock mined in ${(Date.now() - this.timestamp) / 1000} seconds: ${
-        this.hash
-      }`
-    );
   }
 }
 

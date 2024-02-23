@@ -41,7 +41,6 @@ class ProofOfWorkConsensus extends ConsensusMechanism {
       previousHash,
       difficulty: this.difficulty,
     });
-    console.log("\nMining block, please standby...");
     await newBlock.mineBlock();
     return newBlock;
   }

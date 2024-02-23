@@ -13,7 +13,7 @@
  *
  * The validatePendingEntry method is used to validate a pending entry. It should be overridden by subclasses to implement specific validation logic.
  *
- * Treat thjs as a base class for the DataHandler. It should be extended by subclasses to implement specific data handling logic.
+ * Treat this as a base class for the DataHandler. It should be extended by subclasses to implement specific data handling logic.
  *
  */
 
@@ -26,19 +26,29 @@ class DataHandler {
 
   setBlockchain(blockchainInstance) {
     this.blockchain = blockchainInstance;
+    this.blockchain.on("blockCreationEnded", () => {
+      this.checkAndInitiateBlockCreation();
+    });
   }
 
   updateConfig(newConfig) {
     this.config = newConfig;
   }
 
-  async addPendingEntry(entry) {
+  addPendingEntry(entry) {
     if (this.validatePendingEntry(entry)) {
       this.pendingEntries.push(this.transformPendingEntry(entry));
-      if (this.shouldAddBlock()) {
-        await this.blockchain.addBlock(this.pendingEntries);
-        this.clearPendingEntries(); // Reset pending entries
-      }
+      this.checkAndInitiateBlockCreation();
+    }
+  }
+
+  checkAndInitiateBlockCreation() {
+    if (
+      this.pendingEntries.length >= this.config.minEntriesPerBlock &&
+      !this.blockchain.blockCreationInProgress
+    ) {
+      this.blockchain.addBlock(this.pendingEntries);
+      this.clearPendingEntries();
     }
   }
 
@@ -66,16 +76,6 @@ class DataHandler {
     // This method can be overridden by subclasses to implement specific entry transformation logic
     throw new Error("transformEntry method must be implemented");
   }
-
-  shouldAddBlock() {
-    return this.pendingEntries.length >= this.config.maxEntriesPerBlock;
-    //return this.config.shouldAddBlock(this.pendingEntries);
-    // Placeholder for block addition decision logic
-    // This method can be overridden by subclasses to implement specific block addition decision logic
-    throw new Error("shouldAddBlock method must be implemented");
-  }
-
-  //other methods
 }
 
 export default DataHandler;

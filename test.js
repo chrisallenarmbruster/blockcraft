@@ -4,47 +4,58 @@ import StandardMiningReward from "./StandardMiningAward.js";
 import DataHandler from "./DataHandler.js";
 
 async function testBlockchain() {
+  let entryCount = 0;
+  const numberEntriesToAdd = 1000;
+  const millisecondsBetweenEntries = 3000;
+
   let testBlockchain = new Blockchain(
-    new ProofOfWorkConsensus({ difficulty: 5 }),
+    new ProofOfWorkConsensus({ difficulty: 6 }),
     new StandardMiningReward({ fixedReward: 100 }),
-    new DataHandler({ maxEntriesPerBlock: 3 })
+    new DataHandler({ minEntriesPerBlock: 3 })
   );
 
-  testBlockchain.onChainUpdate((chain) => {
-    console.log("\nBlockchain Updated!");
-    console.log("\nBlock added:\n", chain[chain.length - 1]);
+  testBlockchain.on("genesisBlockCreated", (block) => {
+    console.log(
+      "\nBlockchain created and initialized with Genesis Block:\n",
+      block,
+      "\n"
+    );
   });
 
-  console.log(
-    "\nTest Blockchain created and seeded with Genesis Block:\n",
-    testBlockchain.chain[0]
-  );
+  testBlockchain.on("blockCreationStarted", (data) => {
+    console.log(
+      `\nNew block creation started for block #${testBlockchain.chain.length} with data:\n`,
+      data,
+      "\nMining in progress, please stand by...\n"
+    );
+  });
 
-  await testBlockchain.addEntry({ data: "Entry 1" });
-  await testBlockchain.addEntry({ data: "Bogus Entry" });
-  await testBlockchain.addEntry({ data: "Bogus Entry" });
-  await testBlockchain.addEntry({ data: "Entry 2" });
-  await testBlockchain.addEntry({ data: "Entry 3" });
-  await testBlockchain.addEntry({ data: "Bogus Entry" });
-  await testBlockchain.addEntry({ data: "Entry 4" });
-  await testBlockchain.addEntry({ data: "Entry 5" });
-  await testBlockchain.addEntry({ data: "Bogus Entry" });
-  await testBlockchain.addEntry({ data: "Entry 6" });
-  await testBlockchain.addEntry({ data: "Entry 7" });
-  await testBlockchain.addEntry({ data: "Entry 8" });
-  await testBlockchain.addEntry({ data: "Bogus Entry" });
-  await testBlockchain.addEntry({ data: "Bogus Entry" });
-  await testBlockchain.addEntry({ data: "Bogus Entry" });
-  await testBlockchain.addEntry({ data: "Entry 9" });
-  await testBlockchain.addEntry({ data: "Entry 10" });
+  testBlockchain.on("blockCreated", (block) => {
+    console.log(
+      `\nBlock #${block.index} mined in ${
+        (Date.now() - block.timestamp) / 1000
+      } seconds and appended to chain:\n`,
+      block
+    );
+  });
 
-  let isValid = testBlockchain.validateChain();
-  console.log("\nIs the Blockchain valid?", isValid);
+  testBlockchain.on("incentiveDistributed", (incentiveDetails) => {
+    console.log(
+      `\nIncentive of ${incentiveDetails.incentive} distributed to ${incentiveDetails.miner} of block #${incentiveDetails.block.index}:\n`
+    );
+  });
 
-  let latestBlock = testBlockchain.getLatestBlock();
-  console.log("\nLatest Block:", latestBlock);
+  const intervalId = setInterval(() => {
+    if (entryCount >= numberEntriesToAdd) {
+      clearInterval(intervalId);
+    } else {
+      console.log(`Adding \"Entry ${entryCount}\" to queue.`);
+      testBlockchain.addEntry({ data: `Entry ${entryCount}` });
+      entryCount++;
+    }
+  }, millisecondsBetweenEntries);
 
-  console.log("\nComplete Blockchain:\n", testBlockchain.chain);
+  setInterval(() => {}, 3600000); // Keep the process running
 }
 
 testBlockchain();

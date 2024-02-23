@@ -24,17 +24,19 @@
  *
  */
 
+import { EventEmitter } from "events";
 import ProofOfWorkConsensus from "./ProofOfWorkConsensus.js";
 import StandardMiningReward from "./StandardMiningAward.js";
 import DataHandler from "./DataHandler.js";
 
-class Blockchain {
+class Blockchain extends EventEmitter {
   constructor(
     consensusMechanism = new ProofOfWorkConsensus({ difficulty: 4 }),
     incentiveModel = new StandardMiningReward({ fixedReward: 50 }),
     dataHandler = new DataHandler(),
     config = {}
   ) {
+    super();
     this.consensusMechanism = consensusMechanism;
     this.incentiveModel = incentiveModel;
     this.dataHandler = dataHandler;
@@ -43,22 +45,34 @@ class Blockchain {
     this.incentiveModel.setBlockchain(this);
     this.dataHandler.setBlockchain(this);
     this.chain = [this.createGenesisBlock()];
-    this.onChainUpdateCallback = () => {};
+    this.blockCreationInProgress = false;
+
+    process.nextTick(() => {
+      this.emit("genesisBlockCreated", this.chain[0]);
+    });
   }
 
   createGenesisBlock() {
-    return this.consensusMechanism.createGenesisBlock();
+    const genesisBlock = this.consensusMechanism.createGenesisBlock();
+    return genesisBlock;
   }
 
   async addEntry(entry) {
     try {
-      await this.dataHandler.addPendingEntry(entry);
+      this.dataHandler.addPendingEntry(entry);
     } catch (error) {
       console.error("Failed to add entry:", error);
     }
   }
 
   async addBlock(data) {
+    if (this.blockCreationInProgress) {
+      console.log("a block creation is already in progress.");
+      return;
+    }
+    this.blockCreationInProgress = true;
+    this.emit("blockCreationStarted", data);
+
     try {
       const previousBlock = this.getLatestBlock();
       const block = await this.consensusMechanism.createBlock(
@@ -68,13 +82,22 @@ class Blockchain {
       );
 
       this.chain.push(block);
+      this.emit("blockCreated", block);
 
-      const reward = this.incentiveModel.calculateReward(block);
-      this.incentiveModel.distributeReward(block, reward);
+      const incentive = this.incentiveModel.calculateIncentive(block);
+      const incentiveDistributed = this.incentiveModel.distributeIncentive(
+        block,
+        incentive
+      );
 
-      this.onChainUpdateCallback(this.chain);
+      if (incentiveDistributed) {
+        this.emit("incentiveDistributed", incentiveDistributed);
+      }
     } catch (error) {
       console.error("Failed to add block:", error);
+    } finally {
+      this.blockCreationInProgress = false;
+      this.emit("blockCreationEnded");
     }
   }
 
@@ -139,10 +162,6 @@ class Blockchain {
 
     console.log("Replacing the current chain with the new chain.");
     this.chain = newChain;
-  }
-
-  onChainUpdate(callback) {
-    this.onChainUpdateCallback = callback;
   }
 
   importChain(chain) {

@@ -25,16 +25,16 @@ class IncentiveModel {
     this.blockchain = blockchainInstance;
   }
 
-  calculateReward(block) {
+  calculateIncentive(block) {
     // Placeholder for reward calculation logic
     // This method can be overridden by subclasses to implement specific reward logic
-    throw new Error("calculateReward method must be implemented");
+    throw new Error("calculateIncentive method must be implemented");
   }
 
-  distributeReward(block, reward) {
+  distributeIncentive(block, incentive) {
     // Placeholder for reward distribution logic
     // This method can be overridden by subclasses to implement specific distribution logic
-    throw new Error("distributeReward method must be implemented");
+    throw new Error("distributeIncentive method must be implemented");
   }
 
   updateConfig(newConfig) {
