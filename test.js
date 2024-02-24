@@ -2,6 +2,7 @@ import Blockchain from "./Blockchain.js";
 import ProofOfWorkConsensus from "./ProofOfWorkConsensus.js";
 import StandardMiningReward from "./StandardMiningAward.js";
 import DataHandler from "./DataHandler.js";
+import StorageHandler from "./StorageHandler.js";
 
 async function testBlockchain() {
   let entryCount = 0;
@@ -11,12 +12,19 @@ async function testBlockchain() {
   let testBlockchain = new Blockchain(
     new ProofOfWorkConsensus({ difficulty: 6 }),
     new StandardMiningReward({ fixedReward: 100 }),
-    new DataHandler({ minEntriesPerBlock: 3 })
+    new DataHandler({ minEntriesPerBlock: 3 }),
+    new StorageHandler({ storagePath: "blockchain.txt" })
   );
+
+  testBlockchain.on("blockchainLoaded", (chain) => {
+    console.log(
+      `\nBlockchain with ${chain.length} block(s) found in storage and loaded.\n`
+    );
+  });
 
   testBlockchain.on("genesisBlockCreated", (block) => {
     console.log(
-      "\nBlockchain created and initialized with Genesis Block:\n",
+      "\nNo blockchain found in storage.  New chain initialized with Genesis Block:\n",
       block,
       "\n"
     );
