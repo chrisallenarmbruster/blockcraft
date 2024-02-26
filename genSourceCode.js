@@ -8,10 +8,8 @@ const __dirname = path.dirname(__filename);
 const directoryPath = path.join(__dirname);
 const outputFile = path.join(__dirname, "sourceCode.md");
 
-// Clear existing contents
 fs.writeFileSync(outputFile, "");
 
-// Function to append file content to the output file
 const appendFileContent = (file, language) => {
   fs.readFile(path.join(directoryPath, file), "utf8", (err, data) => {
     if (err) {
@@ -26,20 +24,17 @@ const appendFileContent = (file, language) => {
   });
 };
 
-// Read and sort directory files
 fs.readdir(directoryPath, (err, files) => {
   if (err) {
     console.log("Error reading files:", err);
     return;
   }
 
-  // Append README.md first
   const readmeFile = files.find((file) => path.basename(file) === "README.md");
   if (readmeFile) {
     appendFileContent(readmeFile, "markdown");
   }
 
-  // Append package.json next as JSON
   const packageFile = files.find(
     (file) => path.basename(file) === "package.json"
   );
@@ -47,7 +42,6 @@ fs.readdir(directoryPath, (err, files) => {
     appendFileContent(packageFile, "json");
   }
 
-  // Sort and append .js files in alphabetical order
   const jsFiles = files
     .filter(
       (file) => file.endsWith(".js") && file !== path.basename(__filename)

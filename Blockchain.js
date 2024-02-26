@@ -32,17 +32,19 @@ import StorageHandler from "./StorageHandler.js";
 
 class Blockchain extends EventEmitter {
   constructor(
-    consensusMechanism = new ProofOfWorkConsensus({ difficulty: 4 }),
-    incentiveModel = new StandardMiningReward({ fixedReward: 50 }),
-    dataHandler = new DataHandler(),
-    storageHandler = new StorageHandler({ storagePath: "blockchain.txt" }),
+    consensusMechanismInstance = new ProofOfWorkConsensus({ difficulty: 4 }),
+    incentiveModelInstance = new StandardMiningReward({ fixedReward: 50 }),
+    dataHandlerInstance = new DataHandler(),
+    storageHandlerInstance = new StorageHandler({
+      storagePath: "blockchain.txt",
+    }),
     config = {}
   ) {
     super();
-    this.consensusMechanism = consensusMechanism;
-    this.incentiveModel = incentiveModel;
-    this.dataHandler = dataHandler;
-    this.storageHandler = storageHandler;
+    this.consensusMechanism = consensusMechanismInstance;
+    this.incentiveModel = incentiveModelInstance;
+    this.dataHandler = dataHandlerInstance;
+    this.storageHandler = storageHandlerInstance;
     this.config = config;
     this.consensusMechanism.setBlockchain(this);
     this.incentiveModel.setBlockchain(this);
@@ -62,6 +64,10 @@ class Blockchain extends EventEmitter {
       this.chain.push(genesisBlock);
       this.emit("genesisBlockCreated", genesisBlock);
     }
+  }
+
+  setNetworkNode(networkNodeInstance) {
+    this.networkNode = networkNodeInstance;
   }
 
   async createGenesisBlock() {
