@@ -1,9 +1,13 @@
-import NetworkNode from "./NetworkNode.js";
-import Blockchain from "./Blockchain.js";
-import ProofOfWorkConsensus from "./ProofOfWorkConsensus.js";
-import StandardMiningReward from "./StandardMiningAward.js";
-import DataHandler from "./DataHandler.js";
-import StorageHandler from "./StorageHandler.js";
+import {
+  NetworkNode,
+  Blockchain,
+  ProofOfWorkConsensus,
+  StandardMiningReward,
+  DataHandler,
+  StorageHandler,
+  P2PService,
+  WebService,
+} from "./blockcraft.js";
 
 async function blockchain() {
   let entryCount = 0;
@@ -17,7 +21,11 @@ async function blockchain() {
     new StorageHandler({ storagePath: "blockchain.txt" })
   );
 
-  let node = new NetworkNode(blockchain);
+  let node = new NetworkNode(
+    blockchain,
+    new P2PService({ port: 5000 }),
+    new WebService({ port: 3000 })
+  );
 
   node.blockchain.on("blockchainLoaded", (chain) => {
     console.log(

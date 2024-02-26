@@ -37,6 +37,12 @@ class ConsensusMechanism {
     throw new Error("createBlock method must be implemented");
   }
 
+  validateBlockHash(block) {
+    // Placeholder for block hash validation
+    // This method can be overridden by subclasses to implement specific block hash validation logic
+    throw new Error("validateBlockHash method must be implemented");
+  }
+
   updateConfig(newConfig) {
     this.config = newConfig;
   }

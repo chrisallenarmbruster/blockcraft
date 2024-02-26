@@ -44,6 +44,11 @@ class ProofOfWorkConsensus extends ConsensusMechanism {
     await newBlock.mineBlock();
     return newBlock;
   }
+
+  validateBlockHash(block) {
+    const hash = new ProofOfWorkBlock(block).hash;
+    return hash === block.hash;
+  }
 }
 
 export default ProofOfWorkConsensus;

@@ -143,7 +143,7 @@ class Blockchain extends EventEmitter {
       const currentBlock = this.chain[i];
       const previousBlock = this.chain[i - 1];
 
-      if (currentBlock.hash !== currentBlock.computeHash()) {
+      if (this.consensusMechanism.validateBlockHash(currentBlock) !== true) {
         errors.push(`Block ${i} has been tampered with.`);
       }
 
@@ -158,8 +158,6 @@ class Blockchain extends EventEmitter {
       if (currentBlock.timestamp < previousBlock.timestamp) {
         errors.push(`Block ${i} has an invalid timestamp.`);
       }
-
-      // other validations
     }
     return errors.length ? errors : true;
   }

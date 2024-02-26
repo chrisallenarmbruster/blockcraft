@@ -24,12 +24,16 @@
  * ```
  * npm install https://github.com/chrisallenarmbruster/blockcraft.git
  * ```
- *
  * Usage:
- * To use any of these classes in your blockchain project, simply import them from the Blockcraft package.
- * Example:
+ * Depending on your project setup, you can use either ES6 module or CommonJS syntax to import the Blockcraft classes.
+ *
+ * Example with ES6 Modules:
  * ```
  * import { Blockchain, Block, NetworkNode } from 'blockcraft';
+ * ```
+ * Example with CommonJS:
+ * ```
+ * const { Blockchain, Block, NetworkNode } = require('blockcraft');
  * ```
  *
  * Dive into the fascinating world of blockchain with Blockcraft and build your decentralized applications with ease!

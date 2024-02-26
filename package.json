@@ -31,5 +31,8 @@
   "bugs": {
     "url": "https://github.com/chrisallenarmbruster/blockcraft/issues"
   },
-  "homepage": "https://github.com/chrisallenarmbruster/blockcraft#readme"
+  "homepage": "https://github.com/chrisallenarmbruster/blockcraft#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
 }

@@ -16,9 +16,16 @@
 import crypto from "crypto";
 import Block from "./Block.js";
 class ProofOfWorkBlock extends Block {
-  constructor({ index, data, previousHash, timestamp, difficulty = 4 }) {
+  constructor({
+    index,
+    data,
+    previousHash,
+    timestamp,
+    nonce = 0,
+    difficulty = 4,
+  }) {
     super({ index, data, previousHash, timestamp });
-    this.nonce = 0;
+    this.nonce = nonce;
     this.difficulty = difficulty;
     this.hash = this.computeHash();
   }
