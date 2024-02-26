@@ -20,6 +20,7 @@
 class DataHandler {
   constructor(config) {
     this.config = config;
+    this.queuedEntries = [];
     this.pendingEntries = [];
     this.blockchain = null;
   }
@@ -37,27 +38,36 @@ class DataHandler {
 
   addPendingEntry(entry) {
     if (this.validatePendingEntry(entry)) {
-      this.pendingEntries.push(this.transformPendingEntry(entry));
+      this.queuedEntries.push(this.transformPendingEntry(entry));
       this.checkAndInitiateBlockCreation();
     }
   }
 
   checkAndInitiateBlockCreation() {
     if (
-      this.pendingEntries.length >= this.config.minEntriesPerBlock &&
+      this.queuedEntries.length >= this.config.minEntriesPerBlock &&
       !this.blockchain.blockCreationInProgress
     ) {
+      this.pendingEntries = this.deepCopy(this.queuedEntries);
+      this.clearQueuedEntries();
       this.blockchain.addBlock(this.pendingEntries);
-      this.clearPendingEntries();
     }
+  }
+
+  getQueuedEntries() {
+    return this.queuedEntries;
+  }
+
+  clearQueuedEntries() {
+    this.queuedEntries = [];
   }
 
   getPendingEntries() {
     return this.pendingEntries;
   }
 
-  clearPendingEntries() {
-    this.pendingEntries = [];
+  getUnchainedEntries() {
+    return this.pendingEntries.concat(this.queuedEntries);
   }
 
   validatePendingEntry(entry) {
@@ -75,6 +85,24 @@ class DataHandler {
     // Placeholder for entry transformation
     // This method can be overridden by subclasses to implement specific entry transformation logic
     throw new Error("transformEntry method must be implemented");
+  }
+
+  deepCopy(obj) {
+    if (obj === null || typeof obj !== "object") {
+      return obj;
+    }
+
+    if (typeof obj === "function") {
+      return new Function("return " + obj.toString())();
+    }
+
+    let tempObj = Array.isArray(obj) ? [] : {};
+
+    for (let key in obj) {
+      tempObj[key] = this.deepCopy(obj[key]);
+    }
+
+    return tempObj;
   }
 }
 

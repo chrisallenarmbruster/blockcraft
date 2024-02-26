@@ -93,6 +93,30 @@ class WebService {
         res.status(500).send("Error adding entry: " + error.message);
       }
     });
+
+    this.app.get("/unchained-entries", (req, res) => {
+      try {
+        const unchainedEntries =
+          this.networkNode.blockchain.dataHandler.getUnchainedEntries();
+        res.json(unchainedEntries);
+      } catch (error) {
+        res
+          .status(500)
+          .send("Failed to retrieve unchained entries: " + error.message);
+      }
+    });
+
+    this.app.get("/chained-entries", (req, res) => {
+      try {
+        const blockchain = this.networkNode.blockchain;
+        const allEntries = blockchain.chain.flatMap((block) => block.data);
+        res.json(allEntries);
+      } catch (error) {
+        res
+          .status(500)
+          .send("Failed to retrieve chained entries: " + error.message);
+      }
+    });
   }
 
   start() {
