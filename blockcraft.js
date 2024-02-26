@@ -6,9 +6,9 @@
  * form the backbone of any blockchain application.
  *
  * Exports:
- * - `Blockchain`: The core class representing the blockchain itself, managing the chain and its operations.
+ * - `NetworkNode`: A core class representing a node in the blockchain network, facilitating network operations.
+ * - `Blockchain`: A core class representing the blockchain itself, managing the chain and its operations.
  * - `Block`: The basic building block of the blockchain, containing data and links to other blocks.
- * - `NetworkNode`: A class representing a node in the blockchain network, facilitating network operations.
  * - `P2PService`: Handles peer-to-peer communications within the blockchain network.
  * - `WebService`: Manages HTTP API communications for blockchain interaction.
  * - `ConsensusMechanism`: An abstract base class for blockchain consensus mechanisms.
@@ -35,10 +35,10 @@
  * Dive into the fascinating world of blockchain with Blockcraft and build your decentralized applications with ease!
  */
 
-import NetworkNode from "./networkNode.js";
-import Blockchain from "./blockchain.js";
-import P2PService from "./p2pService.js";
-import WebService from "./webService.js";
+import NetworkNode from "./NetworkNode.js";
+import Blockchain from "./Blockchain.js";
+import P2PService from "./P2PService.js";
+import WebService from "./WebService.js";
 import ProofOfWorkConsensus from "./ProofOfWorkConsensus.js";
 import StandardMiningReward from "./StandardMiningAward.js";
 import DataHandler from "./DataHandler.js";
