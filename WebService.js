@@ -3,15 +3,24 @@
  *
  * The WebService class in the Blockcraft blockchain network is responsible for handling HTTP API communications.
  * This class serves as the interface for external applications to interact with the blockchain, facilitating
- * operations like querying blockchain data and submitting transactions.
+ * operations like querying blockchains.
  *
  * The class integrates with the NetworkNode to provide seamless interaction between the blockchain and external
  * HTTP requests. It is designed to be flexible and adaptable to various API needs and can be extended or modified
  * for specific use cases.
  *
  * Usage Example:
- * const webService = new WebService();
+ * const webService = new WebService({ port: 8000 });
  * webService.setNetworkNode(networkNodeInstance);
+ *
+ * Routes:
+ * GET /blockchain - Returns the entire blockchain.
+ * GET /chain-integrity - Validates the blockchain and returns the result.
+ * GET /block/:index - Returns the block at the specified index.
+ * GET /latest-block - Returns the latest block in the blockchain.
+ * POST /add-entry - Queues a new entry to be added to the blockchain. The entry data is provided in the request body.
+ * GET /unchained-entries - Returns all queued entries that have not yet been added to a block.
+ * GET /chained-entries - Returns all entries that have been added to the blockchain.
  *
  */
 
@@ -122,7 +131,7 @@ class WebService {
   start() {
     const port = this.config.port || 3000;
     this.app.listen(port, () => {
-      console.log(`WebService listening on port ${port}`);
+      console.log(`\nWebService listening on port ${port}`);
     });
   }
 }
