@@ -9,22 +9,36 @@ import {
   WebService,
 } from "./blockcraft.js";
 
-async function blockchain() {
+let config = {};
+for (let i = 2; i < process.argv.length; i += 2) {
+  let key = process.argv[i];
+  let value = process.argv[i + 1];
+  if (key.startsWith("-")) {
+    config[key.substring(1)] = value;
+  }
+}
+
+async function blockchain(config) {
   let entryCount = 0;
   const numberEntriesToAdd = 1000;
   const millisecondsBetweenEntries = 3000;
 
   let blockchain = new Blockchain(
-    new ProofOfWorkConsensus({ difficulty: 6 }),
-    new StandardMiningReward({ fixedReward: 100 }),
-    new DataHandler({ minEntriesPerBlock: 3 }),
-    new StorageHandler({ storagePath: "blockchain.txt" })
+    new ProofOfWorkConsensus({ difficulty: config.difficulty || 6 }),
+    new StandardMiningReward({ fixedReward: config.reward || 100 }),
+    new DataHandler({ minEntriesPerBlock: config.minEntriesPerBlock || 3 }),
+    new StorageHandler({ storagePath: config.storagePath || "blockchain.txt" })
   );
 
   let node = new NetworkNode(
     blockchain,
-    new P2PService({ port: 5000 }),
-    new WebService({ port: 3000 })
+    new P2PService({
+      port: config.p2pPort || 5000,
+      autoStart: config.p2pAutoStart || true,
+      nodeAddress: config.p2pNodeAddress || "localhost",
+      nodeId: config.p2pNodeId || "node1",
+    }),
+    new WebService({ port: config.webPort || 3000 })
   );
 
   node.blockchain.on("blockchainLoaded", (chain) => {
@@ -77,4 +91,4 @@ async function blockchain() {
   setInterval(() => {}, 3600000); // Keep the process running
 }
 
-blockchain();
+blockchain(config);
