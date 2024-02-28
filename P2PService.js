@@ -46,6 +46,7 @@ class P2PService {
   handleMessage(ws, message) {
     const msg = JSON.parse(message);
     if (msg.type === "handshake") {
+      console.log("Shaking hands with peer:", msg.senderId);
       this.handleHandshake(ws, msg);
     } else {
       this.handleNonHandshakeMessage(msg);

@@ -1,6 +1,6 @@
 import P2PService from "./P2PService.js";
 
-function createP2PNode(port, connectTo) {
+function createP2PNode(port) {
   const p2pService = new P2PService({
     port: port,
     autoStart: true,
@@ -8,18 +8,17 @@ function createP2PNode(port, connectTo) {
     seedPeers: ["ws://localhost:6001"],
   });
 
-  if (connectTo) {
-    p2pService.connectToPeer(connectTo);
-  }
-
-  p2pService.websocketServer.on("connection", (ws) => {
-    ws.send(
-      JSON.stringify({ type: "message", data: "Hello from port " + port })
-    );
-  });
+  setTimeout(() => {
+    p2pService.broadcast({
+      type: "message",
+      data: "Hello from port " + port,
+      senderId: "node2",
+      messageId: Date.now(),
+    });
+  }, 5000);
 }
 
 const node1Port = 6001;
 const node2Port = 6002;
 
-createP2PNode(node2Port, `ws://localhost:${node1Port}`);
+createP2PNode(node2Port);

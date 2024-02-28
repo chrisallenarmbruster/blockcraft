@@ -8,15 +8,14 @@ function createP2PNode(port, connectTo) {
     seedPeers: ["ws://localhost:6002"],
   });
 
-  if (connectTo) {
-    p2pService.connectToPeer(connectTo);
-  }
-
-  p2pService.websocketServer.on("connection", (ws) => {
-    ws.send(
-      JSON.stringify({ type: "message", data: "Hello from port " + port })
-    );
-  });
+  setTimeout(() => {
+    p2pService.broadcast({
+      type: "message",
+      data: "Hello from port " + port,
+      senderId: "node1",
+      messageId: Date.now(),
+    });
+  }, 7000);
 }
 
 const node1Port = 6001;
