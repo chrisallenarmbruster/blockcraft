@@ -14,7 +14,7 @@
  * p2pService.setNetworkNode(networkNodeInstance);
  *
  */
-
+import WebSocket, { WebSocketServer } from "ws";
 class P2PService {
   constructor(config = {}) {
     this.config = config;
@@ -38,7 +38,7 @@ class P2PService {
   }
 
   initWebsocketServer(port = this.config.port) {
-    this.websocketServer = new WebSocket.Server({ port });
+    this.websocketServer = new WebSocketServer({ port });
     this.websocketServer.on("connection", (ws) => {
       this.connectPeer(ws);
     });
@@ -54,12 +54,14 @@ class P2PService {
 
   connectPeer(ws) {
     this.peers.push(ws);
-    console.log("Connected to a new peer.");
+    console.log(
+      `Connected to a new peer. ${ws.url !== undefined ? ws.url : ""}`
+    );
 
     ws.on("message", (message) => {
       const msg = JSON.parse(message);
       if (!this.messageHistory.has(msg.id)) {
-        console.log("Received message:", message);
+        console.log("Received message:", message.toString());
         this.addToMessageHistory(msg.id);
         this.broadcast(message, ws);
       }
