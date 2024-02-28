@@ -15,10 +15,12 @@
  *
  */
 import WebSocket, { WebSocketServer } from "ws";
+import { nanoid } from "nanoid";
+
 class P2PService {
   constructor(config = {}) {
     this.config = config;
-    this.peers = [];
+    this.peers = new Map();
     this.websocketServer = null;
     this.messageHistory = new Set();
     this.messageTimeout = 30000;
@@ -27,56 +29,92 @@ class P2PService {
     if (this.config.autoStart) {
       this.initWebsocketServer();
     }
-  }
 
-  setNetworkNode(networkNode) {
-    this.networkNode = networkNode;
-  }
-
-  setConfig(config) {
-    this.config = config;
+    if (Array.isArray(this.config.seedPeers)) {
+      this.connectToSeedPeers(this.config.seedPeers);
+    }
   }
 
   initWebsocketServer(port = this.config.port) {
     this.websocketServer = new WebSocketServer({ port });
     this.websocketServer.on("connection", (ws) => {
-      this.connectPeer(ws);
+      ws.on("message", (message) => this.handleMessage(ws, message));
     });
     console.log(`P2PService WebSocket server started on port ${port}`);
+  }
+
+  handleMessage(ws, message) {
+    const msg = JSON.parse(message);
+    if (msg.type === "handshake") {
+      this.handleHandshake(ws, msg);
+    } else {
+      this.handleNonHandshakeMessage(msg);
+    }
+  }
+
+  handleHandshake(ws, msg) {
+    if (!this.peers.has(msg.senderId)) {
+      this.sendHandshake(ws);
+    }
+    this.connectPeer(ws, msg.senderId);
+  }
+
+  handleNonHandshakeMessage(msg) {
+    if (!this.messageHistory.has(msg.messageId)) {
+      console.log("Received message:", JSON.stringify(msg));
+      this.addToMessageHistory(msg.messageId);
+      this.broadcast(msg);
+    }
+  }
+
+  sendHandshake(ws) {
+    const handshakeMessage = {
+      type: "handshake",
+      senderId: this.config.id,
+      messageId: nanoid(),
+    };
+    ws.send(JSON.stringify(handshakeMessage));
+  }
+
+  connectPeer(ws, id) {
+    this.peers.set(id, ws);
+    console.log(
+      `Connected to a new peer with ID ${id}. Total peers: ${this.peers.size}`
+    );
+    ws.on("close", () => {
+      console.log(`Peer ${id} disconnected.`);
+      this.peers.delete(id);
+    });
+  }
+
+  connectToSeedPeers(seedPeers) {
+    seedPeers.forEach((peerAddress) => {
+      try {
+        this.connectToPeer(peerAddress);
+        console.log("Seeded peer connected:", peerAddress);
+      } catch (error) {
+        console.error(
+          `Failed to connect to seed peer at ${peerAddress}:`,
+          error
+        );
+      }
+    });
   }
 
   connectToPeer(peerAddress) {
     const ws = new WebSocket(peerAddress);
     ws.on("open", () => {
-      this.connectPeer(ws);
+      this.sendHandshake(ws);
+    }).on("error", (error) => {
+      console.error(`Connection error with peer ${peerAddress}:`, error);
     });
+    ws.on("message", (message) => this.handleMessage(ws, message));
   }
 
-  connectPeer(ws) {
-    this.peers.push(ws);
-    console.log(
-      `Connected to a new peer. ${ws.url !== undefined ? ws.url : ""}`
-    );
-
-    ws.on("message", (message) => {
-      const msg = JSON.parse(message);
-      if (!this.messageHistory.has(msg.id)) {
-        console.log("Received message:", message.toString());
-        this.addToMessageHistory(msg.id);
-        this.broadcast(message, ws);
-      }
-    });
-
-    ws.on("close", () => {
-      console.log("Peer disconnected.");
-      this.peers = this.peers.filter((peer) => peer !== ws);
-    });
-  }
-
-  broadcast(message, sender) {
-    this.peers.forEach((peer) => {
-      if (peer !== sender) {
-        peer.send(message);
+  broadcast(msg) {
+    this.peers.forEach((peer, id) => {
+      if (id !== msg.senderId) {
+        peer.send(JSON.stringify(msg));
       }
     });
   }
