@@ -79,6 +79,7 @@ class Blockchain extends EventEmitter {
   async addEntry(entry) {
     try {
       this.dataHandler.addPendingEntry(entry);
+      this.emit("entryAdded", entry);
     } catch (error) {
       console.error("Failed to add entry:", error);
     }

@@ -29,6 +29,12 @@ class NetworkNode {
     this.blockchain?.setNetworkNode(this);
     this.p2pService?.setNetworkNode(this);
     this.webService?.setNetworkNode(this);
+
+    if (this.blockchain && this.p2pService) {
+      this.blockchain.on("entryAdded", (entry) => {
+        this.p2pService.broadcastEntry(entry);
+      });
+    }
   }
 
   config(newConfig) {

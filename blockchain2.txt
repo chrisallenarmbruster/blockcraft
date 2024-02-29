@@ -1,1 +1,4 @@
 {"index":0,"data":"Genesis Block","previousHash":"0","timestamp":1709128191460,"hash":"376f25459ffc9f4857baf19ba5fe31f9a477d5ea3af003d046aeb75283adcee1","nonce":0,"difficulty":6},
+{"index":1,"data":["ENTRY 0","ENTRY 1","ENTRY 2"],"previousHash":"376f25459ffc9f4857baf19ba5fe31f9a477d5ea3af003d046aeb75283adcee1","timestamp":1709216831400,"hash":"000000aff79d575ebbf830a507026a6d98259eb4176abbfc9fbd74c36090bcc5","nonce":26663337,"difficulty":6},
+{"index":2,"data":["ENTRY 0","ENTRY 1","ENTRY 2"],"previousHash":"000000aff79d575ebbf830a507026a6d98259eb4176abbfc9fbd74c36090bcc5","timestamp":1709217111697,"hash":"0000008696377055f9739fd8144e4cd0b4c7493d38e73a860bab2b35f36d682b","nonce":10736678,"difficulty":6},
+{"index":3,"data":["ENTRY 0","ENTRY 1","ENTRY 2"],"previousHash":"0000008696377055f9739fd8144e4cd0b4c7493d38e73a860bab2b35f36d682b","timestamp":1709217531498,"hash":"0000005a558492ac77b5f28944411865330a08582fd419579d016724b39f7cc3","nonce":39977012,"difficulty":6},

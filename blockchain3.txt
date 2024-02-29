@@ -1,0 +1,1 @@
+{"index":0,"data":"Genesis Block","previousHash":"0","timestamp":1709218593534,"hash":"2dd991484f9f18d5c8a0fcf819b0cd36436e7facdb06db793629c0a1cc133902","nonce":0,"difficulty":6},

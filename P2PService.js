@@ -10,7 +10,7 @@
  * communication protocols and strategies, offering flexibility for various network topologies.
  *
  * Usage Example:
- * const p2pService = new P2PService({port: 6001, autoStart: true});
+ * const p2pService = new P2PService({port: 6001, autoStart: true, id: "node1", seedPeers: ["ws://localhost:6002"]});
  * p2pService.setNetworkNode(networkNodeInstance);
  *
  */
@@ -35,6 +35,10 @@ class P2PService {
     }
   }
 
+  setNetworkNode(networkNodeInstance) {
+    this.networkNode = networkNodeInstance;
+  }
+
   initWebsocketServer(port = this.config.port) {
     this.websocketServer = new WebSocketServer({ port });
     this.websocketServer.on("connection", (ws) => {
@@ -46,7 +50,6 @@ class P2PService {
   handleMessage(ws, message) {
     const msg = JSON.parse(message);
     if (msg.type === "handshake") {
-      console.log("Shaking hands with peer:", msg.senderId);
       this.handleHandshake(ws, msg);
     } else {
       this.handleNonHandshakeMessage(msg);
@@ -55,16 +58,34 @@ class P2PService {
 
   handleHandshake(ws, msg) {
     if (!this.peers.has(msg.senderId)) {
+      console.log("Adding to my connected peers list:", msg.senderId);
       this.sendHandshake(ws);
     }
     this.connectPeer(ws, msg.senderId);
   }
 
   handleNonHandshakeMessage(msg) {
+    if (typeof msg === "string") {
+      try {
+        msg = JSON.parse(msg);
+      } catch (error) {
+        console.error("Invalid JSON:", msg);
+        return;
+      }
+    }
     if (!this.messageHistory.has(msg.messageId)) {
       console.log("Received message:", JSON.stringify(msg));
       this.addToMessageHistory(msg.messageId);
-      this.broadcast(msg);
+      switch (msg.type) {
+        case "newEntry":
+          // this.networkNode?.blockchain?.dataHandler?.addPendingEntry(msg.data);
+          // or this.networkNode.blockchain.validateAndAddEntry(msg.data);
+          console.log("Received new entry:", msg.data);
+          this.broadcast(msg);
+          break;
+        default:
+          this.broadcast(msg);
+      }
     }
   }
 
@@ -78,10 +99,14 @@ class P2PService {
   }
 
   connectPeer(ws, id) {
-    this.peers.set(id, ws);
-    console.log(
-      `Connected to a new peer with ID ${id}. Total peers: ${this.peers.size}`
-    );
+    if (!this.peers.has(id)) {
+      this.peers.set(id, ws);
+      console.log(
+        `Connected to a new peer with ID ${id}. Total peers: ${this.peers.size}`
+      );
+    } else {
+      this.peers.set(id, ws);
+    }
     ws.on("close", () => {
       console.log(`Peer ${id} disconnected.`);
       this.peers.delete(id);
@@ -110,6 +135,16 @@ class P2PService {
       console.error(`Connection error with peer ${peerAddress}:`, error);
     });
     ws.on("message", (message) => this.handleMessage(ws, message));
+  }
+
+  broadcastEntry(entry) {
+    const message = JSON.stringify({
+      type: "newEntry",
+      data: entry,
+      senderId: this.config.id,
+      messageId: nanoid(),
+    });
+    this.broadcast(message);
   }
 
   broadcast(msg) {
