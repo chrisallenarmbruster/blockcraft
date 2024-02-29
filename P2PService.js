@@ -74,12 +74,13 @@ class P2PService {
       }
     }
     if (!this.messageHistory.has(msg.messageId)) {
-      console.log("Received message:", JSON.stringify(msg));
+      console.log(`\nReceived message: ${JSON.stringify(msg)}\n`);
       this.addToMessageHistory(msg.messageId);
       switch (msg.type) {
         case "newEntry":
           // this.networkNode?.blockchain?.dataHandler?.addPendingEntry(msg.data);
           // or this.networkNode.blockchain.validateAndAddEntry(msg.data);
+          this.networkNode.blockchain.dataHandler.addPendingEntry(msg.data);
           console.log("Received new entry:", msg.data);
           this.broadcast(msg);
           break;
@@ -159,7 +160,7 @@ class P2PService {
     this.messageHistory.add(messageId);
     setTimeout(() => {
       this.messageHistory.delete(messageId);
-      console.log(`Message ID ${messageId} removed from history.`);
+      console.log(`\nMessage ID ${messageId} removed from history.\n`);
     }, this.messageTimeout);
   }
 }

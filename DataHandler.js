@@ -16,13 +16,14 @@
  * Treat this as a base class for the DataHandler. It should be extended by subclasses to implement specific data handling logic.
  *
  */
-
+import { nanoid } from "nanoid";
 class DataHandler {
   constructor(config) {
     this.config = config;
     this.queuedEntries = [];
     this.pendingEntries = [];
     this.blockchain = null;
+    this.entryCache = new Set();
   }
 
   setBlockchain(blockchainInstance) {
@@ -37,9 +38,16 @@ class DataHandler {
   }
 
   addPendingEntry(entry) {
-    if (this.validatePendingEntry(entry)) {
-      this.queuedEntries.push(this.transformPendingEntry(entry));
-      this.checkAndInitiateBlockCreation();
+    if (!entry.entryId) {
+      entry.entryId = nanoid();
+    }
+
+    if (!this.entryCache.has(entry.entryId)) {
+      if (this.validatePendingEntry(entry)) {
+        this.queuedEntries.push(this.transformPendingEntry(entry));
+        this.entryCache.add(entry.entryId);
+        this.checkAndInitiateBlockCreation();
+      }
     }
   }
 

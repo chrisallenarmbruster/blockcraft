@@ -29,6 +29,7 @@ import ProofOfWorkConsensus from "./ProofOfWorkConsensus.js";
 import StandardMiningReward from "./StandardMiningAward.js";
 import DataHandler from "./DataHandler.js";
 import StorageHandler from "./StorageHandler.js";
+import { nanoid } from "nanoid";
 
 class Blockchain extends EventEmitter {
   constructor(
@@ -78,6 +79,9 @@ class Blockchain extends EventEmitter {
 
   async addEntry(entry) {
     try {
+      if (!entry.entryId) {
+        entry.entryId = nanoid();
+      }
       this.dataHandler.addPendingEntry(entry);
       this.emit("entryAdded", entry);
     } catch (error) {

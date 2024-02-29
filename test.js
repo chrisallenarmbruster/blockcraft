@@ -95,7 +95,9 @@ async function blockchain(config) {
       clearInterval(intervalId);
     } else {
       console.log(`Adding \"Entry ${entryCount}\" to queue.`);
-      node.blockchain.addEntry({ data: `Entry ${entryCount}` });
+      node.blockchain.addEntry({
+        data: `${config.p2pNodeId.toUpperCase()}-Entry ${entryCount}`,
+      });
       entryCount++;
     }
   }, millisecondsBetweenEntries);
