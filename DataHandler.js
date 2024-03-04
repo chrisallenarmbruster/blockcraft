@@ -22,13 +22,17 @@ class DataHandler {
     this.config = config;
     this.queuedEntries = [];
     this.pendingEntries = [];
+    this.entryPool = new Map();
     this.blockchain = null;
     this.entryCache = new Set();
   }
 
   setBlockchain(blockchainInstance) {
     this.blockchain = blockchainInstance;
-    this.blockchain.on("blockCreationEnded", () => {
+    this.blockchain.on("blockCreationEnded", (block) => {
+      if (block) {
+        this.removeProcessedTransactions(block);
+      }
       this.checkAndInitiateBlockCreation();
     });
   }
@@ -42,10 +46,9 @@ class DataHandler {
       entry.entryId = nanoid();
     }
 
-    if (!this.entryCache.has(entry.entryId)) {
+    if (!this.entryPool.has(entry.entryId)) {
       if (this.validatePendingEntry(entry)) {
-        this.queuedEntries.push(this.transformPendingEntry(entry));
-        this.entryCache.add(entry.entryId);
+        this.entryPool.set(entry.entryId, entry);
         this.checkAndInitiateBlockCreation();
       }
     }
@@ -53,29 +56,25 @@ class DataHandler {
 
   checkAndInitiateBlockCreation() {
     if (
-      this.queuedEntries.length >= this.config.minEntriesPerBlock &&
+      this.entryPool.size >= this.config.minEntriesPerBlock &&
       !this.blockchain.blockCreationInProgress
     ) {
-      this.pendingEntries = this.deepCopy(this.queuedEntries);
-      this.clearQueuedEntries();
-      this.blockchain.addBlock(this.pendingEntries);
+      this.blockchain.addBlock(Array.from(this.entryPool.values()));
     }
   }
 
-  getQueuedEntries() {
-    return this.queuedEntries;
+  removeProcessedTransactions(block) {
+    block.data.forEach((entry) => {
+      this.entryPool.delete(entry.entryId);
+    });
   }
 
   clearQueuedEntries() {
-    this.queuedEntries = [];
+    this.entryPool.clear();
   }
 
   getPendingEntries() {
-    return this.pendingEntries;
-  }
-
-  getUnchainedEntries() {
-    return this.pendingEntries.concat(this.queuedEntries);
+    return Array.from(this.entryPool.values());
   }
 
   validatePendingEntry(entry) {

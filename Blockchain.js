@@ -90,6 +90,7 @@ class Blockchain extends EventEmitter {
   }
 
   async addBlock(data) {
+    let block;
     if (this.blockCreationInProgress) {
       console.log("a block creation is already in progress.");
       return;
@@ -99,7 +100,7 @@ class Blockchain extends EventEmitter {
 
     try {
       const previousBlock = this.getLatestBlock();
-      const block = await this.consensusMechanism.createBlock(
+      block = await this.consensusMechanism.createBlock(
         this.chain.length,
         data,
         previousBlock.hash
@@ -123,7 +124,11 @@ class Blockchain extends EventEmitter {
       console.error("Failed to add block:", error);
     } finally {
       this.blockCreationInProgress = false;
-      this.emit("blockCreationEnded");
+      if (block) {
+        this.emit("blockCreationEnded", block);
+      } else {
+        this.emit("blockCreationEnded");
+      }
     }
   }
 

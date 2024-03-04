@@ -106,7 +106,7 @@ class WebService {
     this.app.get("/unchained-entries", (req, res) => {
       try {
         const unchainedEntries =
-          this.networkNode.blockchain.dataHandler.getUnchainedEntries();
+          this.networkNode.blockchain.dataHandler.getPendingEntries();
         res.json(unchainedEntries);
       } catch (error) {
         res
