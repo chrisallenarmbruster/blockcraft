@@ -34,6 +34,10 @@ class NetworkNode {
       this.blockchain.on("entryAdded", (entry) => {
         this.p2pService.broadcastEntry(entry);
       });
+
+      this.blockchain.on("blockCreated", (block) => {
+        this.p2pService.broadcastBlock(block);
+      });
     }
   }
 

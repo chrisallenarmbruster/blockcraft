@@ -3,6 +3,8 @@
  *
  * This file defines the DataHandler class, which is responsible for managing the data entries in our blockchain implementation.
  *
+ * An entry is a piece of data that is added to the blockchain. It can be anything from a simple string to a complex transaction object, medical record or vote.
+ *
  * This class or its subclasses are passed into the Blockchain class to handle the data entries.
  *
  * The DataHandler class is constructed with a configuration object and maintains a list of pending entries that are waiting to be added to the blockchain.

@@ -78,12 +78,23 @@ class P2PService {
       this.addToMessageHistory(msg.messageId);
       switch (msg.type) {
         case "newEntry":
-          // this.networkNode?.blockchain?.dataHandler?.addPendingEntry(msg.data);
-          // or this.networkNode.blockchain.validateAndAddEntry(msg.data);
           this.networkNode.blockchain.dataHandler.addPendingEntry(msg.data);
           console.log("Received new entry:", msg.data);
           this.broadcast(msg);
           break;
+        case "newBlock":
+          // const isValidBlock = this.networkNode.blockchain.validateAndAddBlock(
+          //   msg.data
+          // );
+          // if (isValidBlock) {
+          //   console.log("New block added to the blockchain:", msg.data);
+          //   // re-broadcast the block to the network
+          // } else {
+          //   console.error("Invalid block received:", msg.data);
+          // }
+          console.log(`Received new block from ${msg.senderId}:`, msg.data);
+          break;
+
         default:
           this.broadcast(msg);
       }
@@ -142,6 +153,16 @@ class P2PService {
     const message = JSON.stringify({
       type: "newEntry",
       data: entry,
+      senderId: this.config.id,
+      messageId: nanoid(),
+    });
+    this.broadcast(message);
+  }
+
+  broadcastBlock(block) {
+    const message = JSON.stringify({
+      type: "newBlock",
+      data: block,
       senderId: this.config.id,
       messageId: nanoid(),
     });
