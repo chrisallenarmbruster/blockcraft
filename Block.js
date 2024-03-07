@@ -25,6 +25,20 @@ class Block {
     this.hash = this.computeHash();
   }
 
+  setBlockchain(blockchainInstance) {
+    this.blockchain = blockchainInstance;
+  }
+
+  toSerializableObject() {
+    return {
+      index: this.index,
+      data: this.data,
+      previousHash: this.previousHash,
+      timestamp: this.timestamp,
+      hash: this.hash,
+    };
+  }
+
   computeHash() {
     return crypto
       .createHash("SHA256")

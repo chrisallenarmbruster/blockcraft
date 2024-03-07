@@ -28,6 +28,28 @@ class ProofOfWorkBlock extends Block {
     this.nonce = nonce;
     this.difficulty = difficulty;
     this.hash = this.computeHash();
+    this.stopMining = false;
+  }
+
+  setBlockchain(blockchainInstance) {
+    super.setBlockchain(blockchainInstance);
+    this.blockchain.on("newPeerBlockAccepted", () => {
+      console.log("Stopping mining due to new peer block acceptance.");
+      this.stopMining = true;
+    });
+    this.blockchain.on("newPeerChainAccepted", () => {
+      console.log("Stopping mining due to new peer chain acceptance.");
+      this.stopMining = true;
+    });
+  }
+
+  toSerializableObject() {
+    const baseObject = super.toSerializableObject();
+    return {
+      ...baseObject,
+      nonce: this.nonce,
+      difficulty: this.difficulty,
+    };
   }
 
   computeHash() {
@@ -43,8 +65,9 @@ class ProofOfWorkBlock extends Block {
 
   async mineBlock() {
     while (
+      !this.stopMining &&
       this.hash.substring(0, this.difficulty) !==
-      Array(this.difficulty + 1).join("0")
+        Array(this.difficulty + 1).join("0")
     ) {
       this.nonce++;
       this.hash = this.computeHash();
@@ -52,6 +75,7 @@ class ProofOfWorkBlock extends Block {
         await new Promise((resolve) => setImmediate(resolve));
       }
     }
+    return !this.stopMining;
   }
 }
 

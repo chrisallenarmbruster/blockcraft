@@ -80,7 +80,7 @@ async function blockchain(config) {
       `\nBlock #${block.index} mined in ${
         (Date.now() - block.timestamp) / 1000
       } seconds and appended to chain:\n`,
-      block
+      block.toSerializableObject()
     );
   });
 

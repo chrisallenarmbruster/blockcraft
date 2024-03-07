@@ -106,6 +106,11 @@ class Blockchain extends EventEmitter {
         previousBlock.hash
       );
 
+      if (!block) {
+        console.log("Mining was stopped or failed. No block added.");
+        return;
+      }
+
       await this.storageHandler.saveBlock(block);
 
       this.chain.push(block);
@@ -124,11 +129,7 @@ class Blockchain extends EventEmitter {
       console.error("Failed to add block:", error);
     } finally {
       this.blockCreationInProgress = false;
-      if (block) {
-        this.emit("blockCreationEnded", block);
-      } else {
-        this.emit("blockCreationEnded");
-      }
+      this.emit("blockCreationEnded", block ? block : null);
     }
   }
 
@@ -145,6 +146,20 @@ class Blockchain extends EventEmitter {
       }
     }
     return true;
+  }
+
+  async validateBlock(block) {
+    const latestBlock = this.getLatestBlock();
+
+    if (
+      block.index !== latestBlock.index + 1 ||
+      block.previousHash !== latestBlock.hash ||
+      !this.isValidTimestamp(block, latestBlock)
+    ) {
+      return false;
+    }
+
+    return await this.consensusMechanism.validateBlockConsensus(block);
   }
 
   validateChain() {
@@ -165,11 +180,21 @@ class Blockchain extends EventEmitter {
         errors.push(`Block ${i} has an invalid index.`);
       }
 
-      if (currentBlock.timestamp < previousBlock.timestamp) {
+      if (!this.isValidTimestamp(currentBlock, previousBlock)) {
         errors.push(`Block ${i} has an invalid timestamp.`);
       }
     }
     return errors.length ? errors : true;
+  }
+
+  isValidTimestamp(nextBlock, previousBlock) {
+    const MAX_TIMESTEP_FORWARD = 2 * 60 * 60 * 1000;
+    const MAX_TIMESTEP_BACKWARD = -60 * 1000;
+
+    return (
+      previousBlock.timestamp + MAX_TIMESTEP_BACKWARD < nextBlock.timestamp
+      // && nextBlock.timestamp < new Date().getTime() / 1000 + MAX_TIMESTEP_FORWARD
+    );
   }
 
   getLatestBlock() {

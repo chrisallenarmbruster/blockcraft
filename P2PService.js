@@ -83,16 +83,31 @@ class P2PService {
           this.broadcast(msg);
           break;
         case "newBlock":
-          // const isValidBlock = this.networkNode.blockchain.validateAndAddBlock(
-          //   msg.data
-          // );
-          // if (isValidBlock) {
-          //   console.log("New block added to the blockchain:", msg.data);
-          //   // re-broadcast the block to the network
-          // } else {
-          //   console.error("Invalid block received:", msg.data);
-          // }
-          console.log(`Received new block from ${msg.senderId}:`, msg.data);
+          const receivedBlock = msg.data;
+
+          (async () => {
+            try {
+              const latestBlock = this.networkNode.blockchain.getLatestBlock();
+              if (receivedBlock.index > latestBlock.index + 1) {
+                console.log("Longer chain detected.");
+                // TODO: Implement chain replacement: request full chain from peer, validate, stop any mining that was underway, replace, and broadcast new block.
+              } else {
+                const isValidBlock =
+                  await this.networkNode.blockchain.validateBlock(
+                    receivedBlock
+                  );
+                if (isValidBlock) {
+                  console.log(`Valid new block received:`, receivedBlock);
+                  // TODO: Stop any mining that was underway, append block to chain, and broadcast new block.
+                } else {
+                  console.log(`Invalid block received:`, receivedBlock);
+                }
+              }
+            } catch (error) {
+              console.error("Error handling new block:", error);
+            }
+          })();
+
           break;
 
         default:
@@ -162,7 +177,7 @@ class P2PService {
   broadcastBlock(block) {
     const message = JSON.stringify({
       type: "newBlock",
-      data: block,
+      data: block.toSerializableObject(),
       senderId: this.config.id,
       messageId: nanoid(),
     });

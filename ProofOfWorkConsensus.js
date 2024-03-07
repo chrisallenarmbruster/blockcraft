@@ -41,13 +41,23 @@ class ProofOfWorkConsensus extends ConsensusMechanism {
       previousHash,
       difficulty: this.difficulty,
     });
-    await newBlock.mineBlock();
+    newBlock.setBlockchain(this.blockchain);
+    const minedSuccessfully = await newBlock.mineBlock();
+
+    if (!minedSuccessfully) {
+      return null;
+    }
+
     return newBlock;
   }
 
   validateBlockHash(block) {
     const hash = new ProofOfWorkBlock(block).hash;
     return hash === block.hash;
+  }
+
+  async validateBlockConsensus(block) {
+    return this.validateBlockHash(block);
   }
 }
 
