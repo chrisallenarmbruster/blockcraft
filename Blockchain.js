@@ -173,11 +173,12 @@ class Blockchain extends EventEmitter {
     return await this.consensusMechanism.validateBlockConsensus(block);
   }
 
-  validateChain() {
+  validateChain(externalChain = null) {
+    const chainToValidate = externalChain || this.chain;
     const errors = [];
-    for (let i = 1; i < this.chain.length; i++) {
-      const currentBlock = this.chain[i];
-      const previousBlock = this.chain[i - 1];
+    for (let i = 1; i < chainToValidate.length; i++) {
+      const currentBlock = chainToValidate[i];
+      const previousBlock = chainToValidate[i - 1];
 
       if (this.consensusMechanism.validateBlockHash(currentBlock) !== true) {
         errors.push(`Block ${i} has been tampered with.`);
@@ -216,17 +217,31 @@ class Blockchain extends EventEmitter {
     return this.chain[index];
   }
 
-  replaceChain(newChain) {
-    if (newChain.length <= this.chain.length) {
-      console.log("Received chain is not longer than the current chain.");
-      return;
-    } else if (!this.consensusMechanism.isValidChain(newChain)) {
-      console.log("The received chain is not valid.");
-      return;
-    }
+  async replaceChain(newChain) {
+    try {
+      if (newChain.length <= this.chain.length) {
+        console.log("Received chain is not longer than the current chain.");
+        return;
+      } else if (!this.validateChain(newChain)) {
+        console.log("The received chain is not valid.");
+        return;
+      }
 
-    console.log("Replacing the current chain with the new chain.");
-    this.chain = newChain;
+      console.log("Replacing the current chain with the new chain.");
+      this.chain = newChain;
+      await this.storageHandler.saveBlockchain();
+      this.emit("newPeerChainAccepted", newChain);
+    } catch (error) {
+      console.error("Failed to replace chain:", error);
+    }
+  }
+
+  chainToSerializableObject() {
+    return this.chain.map((block) =>
+      typeof block.toSerializableObject === "function"
+        ? block.toSerializableObject()
+        : block
+    );
   }
 
   importChain(chain) {

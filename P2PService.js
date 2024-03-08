@@ -82,6 +82,12 @@ class P2PService {
           console.log("Received new entry:", msg.data);
           this.broadcast(msg);
           break;
+        case "requestFullChain":
+          this.sendFullChain(msg.senderId);
+          break;
+        case "fullChain":
+          this.handleFullChain(msg);
+          break;
         case "newBlock":
           const receivedBlock = msg.data;
 
@@ -91,6 +97,7 @@ class P2PService {
               if (receivedBlock.index > latestBlock.index + 1) {
                 console.log("Longer chain detected.");
                 // TODO: Implement chain replacement: request full chain from peer, validate, stop any mining that was underway, replace, and broadcast new block.
+                this.requestFullChain(msg.senderId);
                 this.broadcast(msg);
               } else {
                 const isValidBlock =
@@ -201,6 +208,81 @@ class P2PService {
       this.messageHistory.delete(messageId);
       console.log(`\nMessage ID ${messageId} removed from history.\n`);
     }, this.messageTimeout);
+  }
+
+  requestFullChain(senderId) {
+    const request = {
+      type: "requestFullChain",
+      senderId: this.config.id,
+      messageId: nanoid(),
+    };
+    if (this.peers.has(senderId)) {
+      const peer = this.peers.get(senderId);
+      peer.send(JSON.stringify(request));
+    } else {
+      console.log(`Peer with ID ${senderId} not found.`);
+    }
+  }
+
+  sendFullChain(receiverId) {
+    if (this.peers.has(receiverId)) {
+      const fullChain = {
+        type: "fullChain",
+        data: this.networkNode.blockchain.chainToSerializableObject(),
+        senderId: this.config.id,
+        messageId: nanoid(),
+      };
+      const peer = this.peers.get(receiverId);
+      peer.send(JSON.stringify(fullChain));
+    } else {
+      console.log(`Peer with ID ${receiverId} not found.`);
+    }
+  }
+
+  // sendFullChain(receiverId) {
+  //   if (this.peers.has(receiverId)) {
+  //     // Create a simplified version of the chain that can be safely serialized
+  //     const simplifiedChain = this.networkNode.blockchain.chain.map(
+  //       (block) => ({
+  //         index: block.index,
+  //         data: block.data,
+  //         previousHash: block.previousHash,
+  //         timestamp: block.timestamp,
+  //         hash: block.hash,
+  //         nonce: block.nonce,
+  //         difficulty: block.difficulty,
+  //         // Include other properties of the block as needed, excluding properties that cause circular references
+  //       })
+  //     );
+
+  //     const fullChain = {
+  //       type: "fullChain",
+  //       data: simplifiedChain,
+  //       senderId: this.config.id,
+  //       messageId: nanoid(),
+  //     };
+  //     const peer = this.peers.get(receiverId);
+  //     peer.send(JSON.stringify(fullChain));
+  //   } else {
+  //     console.log(`Peer with ID ${receiverId} not found.`);
+  //   }
+  // }
+
+  handleFullChain(msg) {
+    const receivedChain = msg.data;
+    if (
+      this.networkNode.blockchain.validateChain(receivedChain) &&
+      receivedChain.length > this.networkNode.blockchain.chain.length
+    ) {
+      console.log(
+        "Received chain is valid and longer. Replacing current chain with received chain."
+      );
+      this.networkNode.blockchain.replaceChain(receivedChain);
+    } else {
+      console.log(
+        "Received chain is invalid or not longer than the current chain."
+      );
+    }
   }
 }
 

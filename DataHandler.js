@@ -43,6 +43,9 @@ class DataHandler {
       }
       this.checkAndInitiateBlockCreation();
     });
+    this.blockchain.on("newPeerChainAccepted", (newChain) => {
+      this.updateEntryPoolWithNewChain(newChain);
+    });
   }
 
   updateConfig(newConfig) {
@@ -72,8 +75,16 @@ class DataHandler {
   }
 
   removeProcessedTransactions(block) {
-    block.data.forEach((entry) => {
-      this.entryPool.delete(entry.entryId);
+    if (block.data !== "Genesis Block") {
+      block.data.forEach((entry) => {
+        this.entryPool.delete(entry.entryId);
+      });
+    }
+  }
+
+  updateEntryPoolWithNewChain(newChain) {
+    newChain.forEach((block) => {
+      this.removeProcessedTransactions(block);
     });
   }
 
