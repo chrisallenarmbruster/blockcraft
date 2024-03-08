@@ -37,6 +37,12 @@ class DataHandler {
       }
       this.checkAndInitiateBlockCreation();
     });
+    this.blockchain.on("peerBlockAdded", (block) => {
+      if (block) {
+        this.removeProcessedTransactions(block);
+      }
+      this.checkAndInitiateBlockCreation();
+    });
   }
 
   updateConfig(newConfig) {

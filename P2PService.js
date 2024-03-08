@@ -91,6 +91,7 @@ class P2PService {
               if (receivedBlock.index > latestBlock.index + 1) {
                 console.log("Longer chain detected.");
                 // TODO: Implement chain replacement: request full chain from peer, validate, stop any mining that was underway, replace, and broadcast new block.
+                this.broadcast(msg);
               } else {
                 const isValidBlock =
                   await this.networkNode.blockchain.validateBlock(
@@ -98,9 +99,11 @@ class P2PService {
                   );
                 if (isValidBlock) {
                   console.log(`Valid new block received:`, receivedBlock);
-                  // TODO: Stop any mining that was underway, append block to chain, and broadcast new block.
+                  this.networkNode.blockchain.addPeerBlock(receivedBlock);
+                  this.broadcast(msg);
                 } else {
                   console.log(`Invalid block received:`, receivedBlock);
+                  this.broadcast(msg);
                 }
               }
             } catch (error) {

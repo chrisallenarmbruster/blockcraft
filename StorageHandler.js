@@ -37,7 +37,12 @@ class StorageHandler {
 
   async saveBlock(block) {
     try {
-      const blockData = JSON.stringify(block.toSerializableObject()) + ",\n";
+      let blockData;
+      if (block.toSerializableObject) {
+        blockData = JSON.stringify(block.toSerializableObject()) + ",\n";
+      } else {
+        blockData = JSON.stringify(block) + ",\n";
+      }
       await fs.appendFile(this.config.storagePath, blockData);
     } catch (error) {
       console.error("Failed to save block:", error);

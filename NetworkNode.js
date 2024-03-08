@@ -38,6 +38,10 @@ class NetworkNode {
       this.blockchain.on("blockCreated", (block) => {
         this.p2pService.broadcastBlock(block);
       });
+
+      this.blockchain.on("peerBlockAdded", (block) => {
+        console.log("Peer block added:", block);
+      });
     }
   }
 

@@ -31,18 +31,6 @@ class ProofOfWorkBlock extends Block {
     this.stopMining = false;
   }
 
-  setBlockchain(blockchainInstance) {
-    super.setBlockchain(blockchainInstance);
-    this.blockchain.on("newPeerBlockAccepted", () => {
-      console.log("Stopping mining due to new peer block acceptance.");
-      this.stopMining = true;
-    });
-    this.blockchain.on("newPeerChainAccepted", () => {
-      console.log("Stopping mining due to new peer chain acceptance.");
-      this.stopMining = true;
-    });
-  }
-
   toSerializableObject() {
     const baseObject = super.toSerializableObject();
     return {

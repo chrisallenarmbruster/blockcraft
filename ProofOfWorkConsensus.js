@@ -23,14 +23,22 @@ class ProofOfWorkConsensus extends ConsensusMechanism {
   constructor(config) {
     super(config);
     this.difficulty = config.difficulty || 4;
+    this.currentMiningBlock = null;
   }
 
-  createGenesisBlock() {
-    return new ProofOfWorkBlock({
-      index: 0,
-      data: "Genesis Block",
-      previousHash: "0",
-      difficulty: this.difficulty,
+  setBlockchain(blockchainInstance) {
+    this.blockchain = blockchainInstance;
+    this.blockchain.on("peerBlockAdded", () => {
+      console.log("Stopping mining due to new peer block acceptance.");
+      if (this.currentMiningBlock) {
+        this.currentMiningBlock.stopMining = true;
+      }
+    });
+    this.blockchain.on("newPeerChainAccepted", () => {
+      console.log("Stopping mining due to new peer chain acceptance.");
+      if (this.currentMiningBlock) {
+        this.currentMiningBlock.stopMining = true;
+      }
     });
   }
 
@@ -42,13 +50,27 @@ class ProofOfWorkConsensus extends ConsensusMechanism {
       difficulty: this.difficulty,
     });
     newBlock.setBlockchain(this.blockchain);
+
+    this.currentMiningBlock = newBlock;
+
     const minedSuccessfully = await newBlock.mineBlock();
+
+    this.currentMiningBlock = null;
 
     if (!minedSuccessfully) {
       return null;
     }
 
     return newBlock;
+  }
+
+  createGenesisBlock() {
+    return new ProofOfWorkBlock({
+      index: 0,
+      data: "Genesis Block",
+      previousHash: "0",
+      difficulty: this.difficulty,
+    });
   }
 
   validateBlockHash(block) {

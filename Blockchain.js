@@ -133,6 +133,17 @@ class Blockchain extends EventEmitter {
     }
   }
 
+  async addPeerBlock(receivedBlock) {
+    const blockIsValid = await this.validateBlock(receivedBlock);
+
+    if (blockIsValid) {
+      await this.storageHandler.saveBlock(receivedBlock);
+      this.chain.push(receivedBlock);
+      // this.blockCreationInProgress = false;
+      this.emit("peerBlockAdded", receivedBlock);
+    }
+  }
+
   isChainValid() {
     for (let i = 1; i < this.chain.length; i++) {
       const currentBlock = this.chain[i];
