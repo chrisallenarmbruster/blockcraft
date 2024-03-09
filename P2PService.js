@@ -78,6 +78,7 @@ class P2PService {
       this.addToMessageHistory(msg.messageId);
       switch (msg.type) {
         case "newEntry":
+          // TODO: put method below on the blockchain class
           this.networkNode.blockchain.dataHandler.addPendingEntry(msg.data);
           console.log("Received new entry:", msg.data);
           this.broadcast(msg);
@@ -96,7 +97,6 @@ class P2PService {
               const latestBlock = this.networkNode.blockchain.getLatestBlock();
               if (receivedBlock.index > latestBlock.index + 1) {
                 console.log("Longer chain detected.");
-                // TODO: Implement chain replacement: request full chain from peer, validate, stop any mining that was underway, replace, and broadcast new block.
                 this.requestFullChain(msg.senderId);
                 this.broadcast(msg);
               } else {
@@ -238,35 +238,6 @@ class P2PService {
       console.log(`Peer with ID ${receiverId} not found.`);
     }
   }
-
-  // sendFullChain(receiverId) {
-  //   if (this.peers.has(receiverId)) {
-  //     // Create a simplified version of the chain that can be safely serialized
-  //     const simplifiedChain = this.networkNode.blockchain.chain.map(
-  //       (block) => ({
-  //         index: block.index,
-  //         data: block.data,
-  //         previousHash: block.previousHash,
-  //         timestamp: block.timestamp,
-  //         hash: block.hash,
-  //         nonce: block.nonce,
-  //         difficulty: block.difficulty,
-  //         // Include other properties of the block as needed, excluding properties that cause circular references
-  //       })
-  //     );
-
-  //     const fullChain = {
-  //       type: "fullChain",
-  //       data: simplifiedChain,
-  //       senderId: this.config.id,
-  //       messageId: nanoid(),
-  //     };
-  //     const peer = this.peers.get(receiverId);
-  //     peer.send(JSON.stringify(fullChain));
-  //   } else {
-  //     console.log(`Peer with ID ${receiverId} not found.`);
-  //   }
-  // }
 
   handleFullChain(msg) {
     const receivedChain = msg.data;
