@@ -53,6 +53,9 @@ class Blockchain extends EventEmitter {
     this.storageHandler.setBlockchain(this);
     this.chain = [];
     this.blockCreationInProgress = false;
+    this.processingPeerBlock = false;
+    this.processingOwnBlock = false;
+    this.processingPeerChain = false;
     this.initialize();
   }
 
@@ -106,10 +109,12 @@ class Blockchain extends EventEmitter {
         previousBlock.hash
       );
 
-      if (!block) {
+      if (!block || this.processingPeerBlock || this.processingPeerChain) {
         console.log("Mining was stopped or failed. No block added.");
         return;
       }
+
+      this.processingOwnBlock = true;
 
       await this.storageHandler.saveBlock(block);
 
@@ -129,18 +134,31 @@ class Blockchain extends EventEmitter {
       console.error("Failed to add block:", error);
     } finally {
       this.blockCreationInProgress = false;
+      this.processingOwnBlock = false;
       this.emit("blockCreationEnded", block ? block : null);
     }
   }
 
   async addPeerBlock(receivedBlock) {
-    const blockIsValid = await this.validateBlock(receivedBlock);
+    if (!this.processingPeerBlock) {
+      this.processingPeerBlock = true;
+      try {
+        const blockIsValid = await this.validateBlock(receivedBlock);
 
-    if (blockIsValid) {
-      await this.storageHandler.saveBlock(receivedBlock);
-      this.chain.push(receivedBlock);
-      // this.blockCreationInProgress = false;
-      this.emit("peerBlockAdded", receivedBlock);
+        if (
+          blockIsValid &&
+          !this.processingOwnBlock &&
+          !this.processingPeerChain
+        ) {
+          await this.storageHandler.saveBlock(receivedBlock);
+          this.chain.push(receivedBlock);
+          this.emit("peerBlockAdded", receivedBlock);
+        }
+      } catch (error) {
+        console.error("Error adding peer block:", error);
+      } finally {
+        this.processingPeerBlock = false;
+      }
     }
   }
 
@@ -218,21 +236,25 @@ class Blockchain extends EventEmitter {
   }
 
   async replaceChain(newChain) {
-    try {
-      if (newChain.length <= this.chain.length) {
-        console.log("Received chain is not longer than the current chain.");
-        return;
-      } else if (!this.validateChain(newChain)) {
-        console.log("The received chain is not valid.");
-        return;
+    if (!this.processingPeerChain) {
+      try {
+        if (newChain.length <= this.chain.length) {
+          console.log("Received chain is not longer than the current chain.");
+          return;
+        } else if (!this.validateChain(newChain)) {
+          console.log("The received chain is not valid.");
+          return;
+        }
+        this.processingPeerChain = true;
+        console.log("Replacing the current chain with the new chain.");
+        this.chain = newChain;
+        await this.storageHandler.saveBlockchain();
+        this.emit("newPeerChainAccepted", newChain);
+      } catch (error) {
+        console.error("Failed to replace chain:", error);
+      } finally {
+        this.processingPeerChain = false;
       }
-
-      console.log("Replacing the current chain with the new chain.");
-      this.chain = newChain;
-      await this.storageHandler.saveBlockchain();
-      this.emit("newPeerChainAccepted", newChain);
-    } catch (error) {
-      console.error("Failed to replace chain:", error);
     }
   }
 
