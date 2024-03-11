@@ -121,14 +121,10 @@ class Blockchain extends EventEmitter {
       this.chain.push(block);
       this.emit("blockCreated", block);
 
-      const incentive = this.incentiveModel.calculateIncentive(block);
-      const incentiveDistributed = this.incentiveModel.distributeIncentive(
-        block,
-        incentive
-      );
+      const incentiveResult = this.incentiveModel.processIncentive(block);
 
-      if (incentiveDistributed) {
-        this.emit("incentiveDistributed", incentiveDistributed);
+      if (incentiveResult.success) {
+        this.emit("incentiveProcessed", incentiveResult);
       }
     } catch (error) {
       console.error("Failed to add block:", error);

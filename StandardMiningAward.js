@@ -32,13 +32,42 @@ class StandardMiningReward extends IncentiveModel {
     // For demonstration, just logging the distribution
     // Update the blockchain state to reflect this reward distribution
     // This might involve updating the miner's balance or adding a transaction to the block
-    const miner = "miner"; // Replace with logic to determine who mined the block
+    const miner = block.blockCreator; // Replace with logic to determine who mined the block
     return {
       block,
       incentive,
       miner,
       message: `Distributed ${incentive} to ${miner}.`,
     };
+  }
+
+  processIncentive(block) {
+    let result = {
+      success: false,
+      targetBlockIndex: null,
+      incentiveDetails: null,
+    };
+
+    if (block.index >= 7) {
+      const targetBlockIndex = block.index - 6;
+      const targetBlock = this.blockchain.getBlockByIndex(targetBlockIndex);
+
+      if (targetBlock) {
+        const incentive = this.calculateIncentive(targetBlock);
+        this.distributeIncentive(targetBlock, incentive);
+
+        result.success = true;
+        result.blockIndex = targetBlockIndex;
+        result.incentiveDetails = {
+          blockCreator: targetBlock.blockCreator,
+          incentiveAmount: incentive,
+        };
+      }
+    } else {
+      console.log("Blockchain not long enough to process incentives yet.");
+    }
+
+    return result;
   }
 }
 

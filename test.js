@@ -84,9 +84,9 @@ async function blockchain(config) {
     );
   });
 
-  node.blockchain.on("incentiveDistributed", (incentiveDetails) => {
+  node.blockchain.on("incentiveProcessed", (incentiveResult) => {
     console.log(
-      `\nIncentive of ${incentiveDetails.incentive} distributed to ${incentiveDetails.miner} of block #${incentiveDetails.block.index}:\n`
+      `\nIncentive of ${incentiveResult.incentiveDetails.incentiveAmount} distributed to ${incentiveResult.incentiveDetails.blockCreator} for block #${incentiveResult.blockIndex}:\n`
     );
   });
 

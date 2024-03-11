@@ -37,6 +37,12 @@ class IncentiveModel {
     throw new Error("distributeIncentive method must be implemented");
   }
 
+  processIncentive(block) {
+    // Placeholder for processing incentive logic
+    // This method can be overridden by subclasses to implement specific processing logic
+    throw new Error("processIncentive method must be implemented");
+  }
+
   updateConfig(newConfig) {
     this.config = newConfig;
   }
