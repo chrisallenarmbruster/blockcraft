@@ -21,10 +21,11 @@ class ProofOfWorkBlock extends Block {
     data,
     previousHash,
     timestamp,
+    blockCreator,
     nonce = 0,
     difficulty = 4,
   }) {
-    super({ index, data, previousHash, timestamp });
+    super({ index, data, previousHash, timestamp, blockCreator });
     this.nonce = nonce;
     this.difficulty = difficulty;
     this.hash = this.computeHash();
@@ -44,9 +45,9 @@ class ProofOfWorkBlock extends Block {
     return crypto
       .createHash("SHA256")
       .update(
-        `${this.index}${this.previousHash}${this.timestamp}${JSON.stringify(
-          this.data
-        )}${this.nonce}`
+        `${this.index}${this.previousHash}${this.timestamp}${
+          this.blockCreator
+        }${JSON.stringify(this.data)}${this.nonce}`
       )
       .digest("hex");
   }

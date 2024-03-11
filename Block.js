@@ -17,11 +17,18 @@
 import crypto from "crypto";
 
 class Block {
-  constructor({ index, data, previousHash, timestamp = Date.now() }) {
+  constructor({
+    index,
+    data,
+    previousHash,
+    timestamp = Date.now(),
+    blockCreator,
+  }) {
     this.index = index;
     this.data = data;
     this.previousHash = previousHash;
     this.timestamp = timestamp;
+    this.blockCreator = blockCreator;
     this.hash = this.computeHash();
   }
 
@@ -35,6 +42,7 @@ class Block {
       data: this.data,
       previousHash: this.previousHash,
       timestamp: this.timestamp,
+      blockCreator: this.blockCreator,
       hash: this.hash,
     };
   }
@@ -43,9 +51,9 @@ class Block {
     return crypto
       .createHash("SHA256")
       .update(
-        `${this.index}${this.previousHash}${this.timestamp}${JSON.stringify(
-          this.data
-        )}`
+        `${this.index}${this.previousHash}${this.timestamp}${
+          this.blockCreator
+        }${JSON.stringify(this.data)}`
       )
       .digest("hex");
   }

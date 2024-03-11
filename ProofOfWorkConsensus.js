@@ -43,10 +43,18 @@ class ProofOfWorkConsensus extends ConsensusMechanism {
   }
 
   async createBlock(index, data, previousHash) {
+    console.log(
+      "Creating new block...",
+      index,
+      data,
+      previousHash,
+      this.blockchain.networkNode.config
+    );
     const newBlock = new ProofOfWorkBlock({
       index,
       data,
       previousHash,
+      blockCreator: this.blockchain.networkNode.p2pService.config.id,
       difficulty: this.difficulty,
     });
     newBlock.setBlockchain(this.blockchain);
@@ -69,6 +77,7 @@ class ProofOfWorkConsensus extends ConsensusMechanism {
       index: 0,
       data: "Genesis Block",
       previousHash: "0",
+      blockCreator: this.blockchain.networkNode.p2pService.config.id,
       difficulty: this.difficulty,
     });
   }
