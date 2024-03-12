@@ -48,7 +48,9 @@ class WebService {
   }
 
   initializeRoutes() {
-    this.app.get("/blockchain", (req, res) => {
+    const router = express.Router();
+
+    router.get("/blockchain", (req, res) => {
       if (this.networkNode && this.networkNode.blockchain) {
         res.json(this.networkNode.blockchain.chain);
       } else {
@@ -56,7 +58,7 @@ class WebService {
       }
     });
 
-    this.app.get("/chain-integrity", (req, res) => {
+    router.get("/chain-integrity", (req, res) => {
       const validationResult = this.networkNode.blockchain.validateChain();
 
       if (validationResult === true) {
@@ -70,7 +72,7 @@ class WebService {
       }
     });
 
-    this.app.get("/block/:index", (req, res) => {
+    router.get("/block/:index", (req, res) => {
       const index = parseInt(req.params.index);
       if (isNaN(index)) {
         return res.status(400).send("Invalid index");
@@ -84,7 +86,7 @@ class WebService {
       res.json(block);
     });
 
-    this.app.get("/latest-block", (req, res) => {
+    router.get("/latest-block", (req, res) => {
       const latestBlock = this.networkNode.blockchain.getLatestBlock();
       if (!latestBlock) {
         return res.status(404).send("No blocks found in the blockchain");
@@ -93,7 +95,7 @@ class WebService {
       res.json(latestBlock);
     });
 
-    this.app.post("/add-entry", (req, res) => {
+    router.post("/add-entry", (req, res) => {
       if (!req.body || Object.keys(req.body).length === 0) {
         return res.status(400).send("No data provided");
       }
@@ -106,7 +108,7 @@ class WebService {
       }
     });
 
-    this.app.get("/unchained-entries", (req, res) => {
+    router.get("/unchained-entries", (req, res) => {
       try {
         const unchainedEntries =
           this.networkNode.blockchain.dataHandler.getPendingEntries();
@@ -118,7 +120,7 @@ class WebService {
       }
     });
 
-    this.app.get("/chained-entries", (req, res) => {
+    router.get("/chained-entries", (req, res) => {
       try {
         const blockchain = this.networkNode.blockchain;
         const allEntries = blockchain.chain.flatMap((block) => block.data);
@@ -129,6 +131,8 @@ class WebService {
           .send("Failed to retrieve chained entries: " + error.message);
       }
     });
+
+    this.app.use("/api", router);
   }
 
   serveFrontend() {
