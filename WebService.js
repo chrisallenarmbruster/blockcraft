@@ -25,6 +25,8 @@
  */
 
 import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
 class WebService {
   constructor(config = {}) {
     this.config = config;
@@ -33,6 +35,7 @@ class WebService {
     this.app.use(express.json());
 
     this.initializeRoutes();
+    this.serveFrontend();
     this.start();
   }
 
@@ -125,6 +128,20 @@ class WebService {
           .status(500)
           .send("Failed to retrieve chained entries: " + error.message);
       }
+    });
+  }
+
+  serveFrontend() {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const frontendPath = path.join(
+      __dirname,
+      "node_modules/blockcraft-explorer/dist"
+    );
+    this.app.use(express.static(frontendPath));
+
+    this.app.get("*", (req, res) => {
+      res.sendFile(path.join(frontendPath, "index.html"));
     });
   }
 
