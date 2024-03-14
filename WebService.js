@@ -58,7 +58,35 @@ class WebService {
       }
     });
 
-    router.get("/chain-integrity", (req, res) => {
+    router.get("/chain/info", async (req, res) => {
+      try {
+        const chain = this.networkNode.blockchain.chain;
+
+        const chainInfo = {
+          blockchainName: this.networkNode.blockchain.config.blockchainName,
+          bornOn: chain[0].timestamp,
+          currentHeight: chain.length,
+        };
+
+        if (chain[chain.length - 1].hasOwnProperty("difficulty")) {
+          chainInfo.difficulty = chain[chain.length - 1].difficulty;
+        }
+
+        if (typeof this.networkNode.blockchain.getTotalSupply === "function") {
+          const totalSupply = this.networkNode.blockchain.getTotalSupply();
+          if (totalSupply !== undefined) {
+            chainInfo.totalSupply = totalSupply;
+          }
+        }
+
+        res.json(chainInfo);
+      } catch (error) {
+        console.error("Failed to get chain info:", error);
+        res.status(500).send("Error fetching chain information");
+      }
+    });
+
+    router.get("/chain/integrity", (req, res) => {
       const validationResult = this.networkNode.blockchain.validateChain();
 
       if (validationResult === true) {

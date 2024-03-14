@@ -39,7 +39,8 @@ async function blockchain(config) {
     new ProofOfWorkConsensus({ difficulty: config.difficulty || 6 }),
     new StandardMiningReward({ fixedReward: config.reward || 100 }),
     new DataHandler({ minEntriesPerBlock: config.minEntriesPerBlock || 3 }),
-    new StorageHandler({ storagePath: config.storagePath || "blockchain.txt" })
+    new StorageHandler({ storagePath: config.storagePath || "blockchain.txt" }),
+    { blockchainName: config.blockchainName || "Blockcraft" }
   );
 
   let node = new NetworkNode(

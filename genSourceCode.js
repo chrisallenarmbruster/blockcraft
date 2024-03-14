@@ -6,7 +6,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const directoryPath = path.join(__dirname);
-const outputFile = path.join(__dirname, "sourceCode.md");
+const outputFile = path.join(__dirname, "blockcraftSourceCode.md");
 
 fs.writeFileSync(outputFile, "");
 
