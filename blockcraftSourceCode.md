@@ -402,6 +402,69 @@ export default Blockchain;
 
 ```
 
+# ConsensusMechanism.js
+
+```javascript
+/**
+ * ConsensusMechanism.js
+ *
+ * This file defines the ConsensusMechanism class, which serves as an abstract base class for different consensus mechanisms in a blockchain.
+ *
+ * This class or its subclasses are passed into the Blockchain class to handle the logic for creating the genesis block, and aligning on new valid blocks.
+ *
+ * The ConsensusMechanism class is constructed with a configuration object and has methods for setting the blockchain instance, creating the genesis block, creating a new block, and updating the configuration.
+ *
+ * The createGenesisBlock and createBlock methods are placeholders that should be overridden by subclasses to implement specific logic for creating the genesis block and new blocks.
+ *
+ * The setBlockchain method is used to set the blockchain instance that the consensus mechanism belongs to.
+ *
+ * The updateConfig method is used to update the configuration of the consensus mechanism.
+ *
+ */
+
+class ConsensusMechanism {
+  constructor(config) {
+    this.config = config;
+    this.blockchain = null;
+  }
+
+  setBlockchain(blockchainInstance) {
+    this.blockchain = blockchainInstance;
+  }
+
+  createGenesisBlock() {
+    // Placeholder for genesis block creation
+    // This method can be overridden by subclasses to implement specific genesis block logic
+    throw new Error("createGenesisBlock method must be implemented");
+  }
+
+  createBlock(index, data, previousHash) {
+    // Placeholder for block creation
+    // This method can be overridden by subclasses to implement specific block creation logic
+    throw new Error("createBlock method must be implemented");
+  }
+
+  validateBlockHash(block) {
+    // Placeholder for block hash validation
+    // This method can be overridden by subclasses to implement specific block hash validation logic
+    throw new Error("validateBlockHash method must be implemented");
+  }
+
+  async validateBlockConsensus(block) {
+    // Placeholder for block consensus validation
+    // This method can be overridden by subclasses to implement specific block consensus validation logic
+    throw new Error("validateBlockConsensus method must be implemented");
+  }
+
+  updateConfig(newConfig) {
+    this.config = newConfig;
+  }
+}
+
+export default ConsensusMechanism;
+
+```
+
 # blockcraft.js
 
 ```javascript
@@ -476,69 +539,6 @@ export {
 
 ```
 
-# ConsensusMechanism.js
-
-```javascript
-/**
- * ConsensusMechanism.js
- *
- * This file defines the ConsensusMechanism class, which serves as an abstract base class for different consensus mechanisms in a blockchain.
- *
- * This class or its subclasses are passed into the Blockchain class to handle the logic for creating the genesis block, and aligning on new valid blocks.
- *
- * The ConsensusMechanism class is constructed with a configuration object and has methods for setting the blockchain instance, creating the genesis block, creating a new block, and updating the configuration.
- *
- * The createGenesisBlock and createBlock methods are placeholders that should be overridden by subclasses to implement specific logic for creating the genesis block and new blocks.
- *
- * The setBlockchain method is used to set the blockchain instance that the consensus mechanism belongs to.
- *
- * The updateConfig method is used to update the configuration of the consensus mechanism.
- *
- */
-
-class ConsensusMechanism {
-  constructor(config) {
-    this.config = config;
-    this.blockchain = null;
-  }
-
-  setBlockchain(blockchainInstance) {
-    this.blockchain = blockchainInstance;
-  }
-
-  createGenesisBlock() {
-    // Placeholder for genesis block creation
-    // This method can be overridden by subclasses to implement specific genesis block logic
-    throw new Error("createGenesisBlock method must be implemented");
-  }
-
-  createBlock(index, data, previousHash) {
-    // Placeholder for block creation
-    // This method can be overridden by subclasses to implement specific block creation logic
-    throw new Error("createBlock method must be implemented");
-  }
-
-  validateBlockHash(block) {
-    // Placeholder for block hash validation
-    // This method can be overridden by subclasses to implement specific block hash validation logic
-    throw new Error("validateBlockHash method must be implemented");
-  }
-
-  async validateBlockConsensus(block) {
-    // Placeholder for block consensus validation
-    // This method can be overridden by subclasses to implement specific block consensus validation logic
-    throw new Error("validateBlockConsensus method must be implemented");
-  }
-
-  updateConfig(newConfig) {
-    this.config = newConfig;
-  }
-}
-
-export default ConsensusMechanism;
-
-```
-
 # IncentiveModel.js
 
 ```javascript
@@ -593,6 +593,83 @@ class IncentiveModel {
 }
 
 export default IncentiveModel;
+
+```
+
+# ProofOfWorkBlock.js
+
+```javascript
+/**
+ * ProofOfWorkBlock.js
+ *
+ * This file defines the ProofOfWorkBlock class, which extends the Block class and adds proof-of-work functionality.
+ *
+ * This class is used by the ProofOfWorkConsensus class to create blocks with proof-of-work functionality.
+ *
+ * Each ProofOfWorkBlock has an index, data, previousHash, timestamp, difficulty, nonce, and hash. The nonce is a number that is incremented in the process of mining the block.
+ *
+ * The ProofOfWorkBlock class overrides the computeHash method of the Block class to include the nonce in the hash computation.
+ *
+ * The mineBlock method is used to mine the block by incrementally increasing the nonce and recomputing the hash until a hash that meets the difficulty requirement is found. The difficulty requirement is that the first 'difficulty' number of characters of the hash must be zeros.
+ *
+ */
+
+import crypto from "crypto";
+import Block from "./Block.js";
+class ProofOfWorkBlock extends Block {
+  constructor({
+    index,
+    data,
+    previousHash,
+    timestamp,
+    blockCreator,
+    nonce = 0,
+    difficulty = 4,
+  }) {
+    super({ index, data, previousHash, timestamp, blockCreator });
+    this.nonce = nonce;
+    this.difficulty = difficulty;
+    this.hash = this.computeHash();
+    this.stopMining = false;
+  }
+
+  toSerializableObject() {
+    const baseObject = super.toSerializableObject();
+    return {
+      ...baseObject,
+      nonce: this.nonce,
+      difficulty: this.difficulty,
+    };
+  }
+
+  computeHash() {
+    return crypto
+      .createHash("SHA256")
+      .update(
+        `${this.index}${this.previousHash}${this.timestamp}${
+          this.blockCreator
+        }${JSON.stringify(this.data)}${this.nonce}`
+      )
+      .digest("hex");
+  }
+
+  async mineBlock() {
+    while (
+      !this.stopMining &&
+      this.hash.substring(0, this.difficulty) !==
+        Array(this.difficulty + 1).join("0")
+    ) {
+      this.nonce++;
+      this.hash = this.computeHash();
+      if (this.nonce % 1000 === 0) {
+        await new Promise((resolve) => setImmediate(resolve));
+      }
+    }
+    return !this.stopMining;
+  }
+}
+
+export default ProofOfWorkBlock;
 
 ```
 
@@ -737,83 +814,6 @@ export default DataHandler;
 
 ```
 
-# ProofOfWorkBlock.js
-
-```javascript
-/**
- * ProofOfWorkBlock.js
- *
- * This file defines the ProofOfWorkBlock class, which extends the Block class and adds proof-of-work functionality.
- *
- * This class is used by the ProofOfWorkConsensus class to create blocks with proof-of-work functionality.
- *
- * Each ProofOfWorkBlock has an index, data, previousHash, timestamp, difficulty, nonce, and hash. The nonce is a number that is incremented in the process of mining the block.
- *
- * The ProofOfWorkBlock class overrides the computeHash method of the Block class to include the nonce in the hash computation.
- *
- * The mineBlock method is used to mine the block by incrementally increasing the nonce and recomputing the hash until a hash that meets the difficulty requirement is found. The difficulty requirement is that the first 'difficulty' number of characters of the hash must be zeros.
- *
- */
-
-import crypto from "crypto";
-import Block from "./Block.js";
-class ProofOfWorkBlock extends Block {
-  constructor({
-    index,
-    data,
-    previousHash,
-    timestamp,
-    blockCreator,
-    nonce = 0,
-    difficulty = 4,
-  }) {
-    super({ index, data, previousHash, timestamp, blockCreator });
-    this.nonce = nonce;
-    this.difficulty = difficulty;
-    this.hash = this.computeHash();
-    this.stopMining = false;
-  }
-
-  toSerializableObject() {
-    const baseObject = super.toSerializableObject();
-    return {
-      ...baseObject,
-      nonce: this.nonce,
-      difficulty: this.difficulty,
-    };
-  }
-
-  computeHash() {
-    return crypto
-      .createHash("SHA256")
-      .update(
-        `${this.index}${this.previousHash}${this.timestamp}${
-          this.blockCreator
-        }${JSON.stringify(this.data)}${this.nonce}`
-      )
-      .digest("hex");
-  }
-
-  async mineBlock() {
-    while (
-      !this.stopMining &&
-      this.hash.substring(0, this.difficulty) !==
-        Array(this.difficulty + 1).join("0")
-    ) {
-      this.nonce++;
-      this.hash = this.computeHash();
-      if (this.nonce % 1000 === 0) {
-        await new Promise((resolve) => setImmediate(resolve));
-      }
-    }
-    return !this.stopMining;
-  }
-}
-
-export default ProofOfWorkBlock;
-
-```
-
 # NetworkNode.js
 
 ```javascript
@@ -870,86 +870,6 @@ class NetworkNode {
 }
 
 export default NetworkNode;
-
-```
-
-# StandardMiningAward.js
-
-```javascript
-/**
- * StandardMiningReward.js
- *
- * This file defines the StandardMiningReward class, which extends the IncentiveModel class and implements a standard fixed reward for mining a block.
- *
- * This class is passed into the Blockchain class to define an incentive model for the blockchain.
- *
- * The StandardMiningReward class is constructed with a configuration object, which should contain a fixedReward property that specifies the reward for mining a block. If no fixedReward is specified, a default value of 50 is used.
- *
- * The calculateReward method is used to calculate the reward for a block, which is the fixed reward specified in the configuration.
- *
- * The distributeReward method is used to distribute the reward to the miner of the block. In practice, this would involve creating a transaction. For demonstration purposes, this method just logs the distribution and does not actually update the blockchain state.
- *
- */
-
-import IncentiveModel from "./IncentiveModel.js";
-
-class StandardMiningReward extends IncentiveModel {
-  constructor(config) {
-    super(config);
-    // Assuming config contains a fixedReward property
-    this.fixedReward = config.fixedReward || 50;
-  }
-
-  calculateIncentive(block) {
-    return this.fixedReward;
-  }
-
-  distributeIncentive(block, incentive) {
-    // Distribute the reward to the miner (block creator)
-    // In practice, this would involve creating a transaction
-    // For demonstration, just logging the distribution
-    // Update the blockchain state to reflect this reward distribution
-    // This might involve updating the miner's balance or adding a transaction to the block
-    const miner = block.blockCreator; // Replace with logic to determine who mined the block
-    return {
-      block,
-      incentive,
-      miner,
-      message: `Distributed ${incentive} to ${miner}.`,
-    };
-  }
-
-  processIncentive(block) {
-    let result = {
-      success: false,
-      targetBlockIndex: null,
-      incentiveDetails: null,
-    };
-
-    if (block.index >= 7) {
-      const targetBlockIndex = block.index - 6;
-      const targetBlock = this.blockchain.getBlockByIndex(targetBlockIndex);
-
-      if (targetBlock) {
-        const incentive = this.calculateIncentive(targetBlock);
-        this.distributeIncentive(targetBlock, incentive);
-
-        result.success = true;
-        result.blockIndex = targetBlockIndex;
-        result.incentiveDetails = {
-          blockCreator: targetBlock.blockCreator,
-          incentiveAmount: incentive,
-        };
-      }
-    } else {
-      console.log("Blockchain not long enough to process incentives yet.");
-    }
-
-    return result;
-  }
-}
-
-export default StandardMiningReward;
 
 ```
 
@@ -1054,21 +974,113 @@ export default ProofOfWorkConsensus;
 
 ```
 
-# test.js
+# StandardMiningAward.js
 
 ```javascript
-import {
-  NetworkNode,
-  Blockchain,
-  ProofOfWorkConsensus,
-  StandardMiningReward,
-  DataHandler,
-  StorageHandler,
-  P2PService,
-  WebService,
-} from "./blockcraft.js";
+/**
+ * StandardMiningReward.js
+ *
+ * This file defines the StandardMiningReward class, which extends the IncentiveModel class and implements a standard fixed reward for mining a block.
+ *
+ * This class is passed into the Blockchain class to define an incentive model for the blockchain.
+ *
+ * The StandardMiningReward class is constructed with a configuration object, which should contain a fixedReward property that specifies the reward for mining a block. If no fixedReward is specified, a default value of 50 is used.
+ *
+ * The calculateReward method is used to calculate the reward for a block, which is the fixed reward specified in the configuration.
+ *
+ * The distributeReward method is used to distribute the reward to the miner of the block. In practice, this would involve creating a transaction. For demonstration purposes, this method just logs the distribution and does not actually update the blockchain state.
+ *
+ */
+
+import IncentiveModel from "./IncentiveModel.js";
+
+class StandardMiningReward extends IncentiveModel {
+  constructor(config) {
+    super(config);
+    // Assuming config contains a fixedReward property
+    this.fixedReward = config.fixedReward || 50;
+  }
+
+  calculateIncentive(block) {
+    return this.fixedReward;
+  }
+
+  distributeIncentive(block, incentive) {
+    // Distribute the reward to the miner (block creator)
+    // In practice, this would involve creating a transaction
+    // For demonstration, just logging the distribution
+    // Update the blockchain state to reflect this reward distribution
+    // This might involve updating the miner's balance or adding a transaction to the block
+    const miner = block.blockCreator; // Replace with logic to determine who mined the block
+    return {
+      block,
+      incentive,
+      miner,
+      message: `Distributed ${incentive} to ${miner}.`,
+    };
+  }
+
+  processIncentive(block) {
+    let result = {
+      success: false,
+      targetBlockIndex: null,
+      incentiveDetails: null,
+    };
+
+    if (block.index >= 7) {
+      const targetBlockIndex = block.index - 6;
+      const targetBlock = this.blockchain.getBlockByIndex(targetBlockIndex);
+
+      if (targetBlock) {
+        const incentive = this.calculateIncentive(targetBlock);
+        this.distributeIncentive(targetBlock, incentive);
+
+        result.success = true;
+        result.blockIndex = targetBlockIndex;
+        result.incentiveDetails = {
+          blockCreator: targetBlock.blockCreator,
+          incentiveAmount: incentive,
+        };
+      }
+    } else {
+      console.log("Blockchain not long enough to process incentives yet.");
+    }
+
+    return result;
+  }
+}
+
+export default StandardMiningReward;
+
+```
+
+# testP2P1.js
+
+```javascript
+import P2PService from "./P2PService.js";
+
+function createP2PNode(config) {
+  console.clear();
+
+  const p2pService = new P2PService({
+    port: config.port,
+    autoStart: config.autoStart,
+    id: config.id,
+    seedPeers: config.seedPeers,
+  });
+
+  setTimeout(() => {
+    p2pService.broadcast({
+      type: "message",
+      data: `${config.messageData} from port ${config.port}`,
+      senderId: config.id,
+      messageId: Date.now(),
+    });
+  }, config.testMessageDelay);
+}
 
 let config = {};
+
 for (let i = 2; i < process.argv.length; i += 2) {
   let key = process.argv[i];
   let value = process.argv[i + 1];
@@ -1077,106 +1089,22 @@ for (let i = 2; i < process.argv.length; i += 2) {
   }
 }
 
-"true" === config.p2pAutoStart
-  ? (config.p2pAutoStart = true)
-  : (config.p2pAutoStart = false);
+"true" === config.autoStart
+  ? (config.autoStart = true)
+  : (config.autoStart = false);
 
-config.p2pPort = parseInt(config.p2pPort);
-config.webPort = parseInt(config.webPort);
+config.port = parseInt(config.port);
 config.seedPeers = JSON.parse(config.seedPeers);
 config.testMessageDelay = parseInt(config.testMessageDelay);
-config.difficulty = parseInt(config.difficulty);
-config.reward = parseInt(config.reward);
-config.minEntriesPerBlock = parseInt(config.minEntriesPerBlock);
 
-async function blockchain(config) {
-  let entryCount = 0;
-  const numberEntriesToAdd = 1000;
-  const millisecondsBetweenEntries = 3000;
-
-  let blockchain = new Blockchain(
-    new ProofOfWorkConsensus({ difficulty: config.difficulty || 6 }),
-    new StandardMiningReward({ fixedReward: config.reward || 100 }),
-    new DataHandler({ minEntriesPerBlock: config.minEntriesPerBlock || 3 }),
-    new StorageHandler({ storagePath: config.storagePath || "blockchain.txt" })
-  );
-
-  let node = new NetworkNode(
-    blockchain,
-    new P2PService({
-      port: config.p2pPort,
-      autoStart: config.p2pAutoStart,
-      id: config.p2pNodeId,
-      seedPeers: config.seedPeers,
-    }),
-    new WebService({ port: config.webPort || 3000 })
-  );
-
-  node.blockchain.on("blockchainLoaded", (chain) => {
-    console.log(
-      `\nBlockchain with ${chain.length} block(s) found in storage and loaded.\n`
-    );
-  });
-
-  node.blockchain.on("genesisBlockCreated", (block) => {
-    console.log(
-      "\nNo blockchain found in storage.  New chain initialized with Genesis Block:\n",
-      block,
-      "\n"
-    );
-  });
-
-  node.blockchain.on("blockCreationStarted", (data) => {
-    console.log(
-      `\nNew block creation started for block #${node.blockchain.chain.length} with data:\n`,
-      data,
-      "\nMining in progress, please stand by...\n"
-    );
-  });
-
-  node.blockchain.on("blockCreated", (block) => {
-    console.log(
-      `\nBlock #${block.index} mined in ${
-        (Date.now() - block.timestamp) / 1000
-      } seconds and appended to chain:\n`,
-      block.toSerializableObject()
-    );
-  });
-
-  node.blockchain.on("incentiveProcessed", (incentiveResult) => {
-    console.log(
-      `\nIncentive of ${incentiveResult.incentiveDetails.incentiveAmount} distributed to ${incentiveResult.incentiveDetails.blockCreator} for block #${incentiveResult.blockIndex}:\n`
-    );
-  });
-
-  const intervalId = setInterval(() => {
-    if (entryCount >= numberEntriesToAdd) {
-      clearInterval(intervalId);
-    } else {
-      console.log(
-        `\nAdding \"${config.p2pNodeId.toUpperCase()}-Entry ${entryCount}\" to queue.`
-      );
-      node.blockchain.addEntry({
-        data: `${config.p2pNodeId.toUpperCase()}-Entry ${entryCount}`,
-      });
-      entryCount++;
-    }
-  }, millisecondsBetweenEntries);
-
-  setInterval(() => {}, 3600000); // Keep the process running
-}
-
-console.clear();
-
-blockchain(config);
+createP2PNode(config);
 
 // Run this file with the following command:
-//   node test.js -p2pPort 6001 -p2pAutoStart true -p2pNodeId node1 -webPort 3000 -seedPeers '["ws://localhost:6002"]' -difficulty 6 -reward 100 -minEntriesPerBlock 3 -storagePath blockchain.txt
-//
-// try the following in separate terminals:
-// node test.js -p2pPort 6001 -p2pAutoStart true -p2pNodeId node1 -webPort 3000 -seedPeers '["ws://localhost:6002","ws://localhost:6003"]' -difficulty 6 -reward 100 -minEntriesPerBlock 3 -storagePath "blockchain.txt"
-// node test.js -p2pPort 6002 -p2pAutoStart true -p2pNodeId node2 -webPort 3001 -seedPeers '["ws://localhost:6001","ws://localhost:6003"]' -difficulty 6 -reward 100 -minEntriesPerBlock 3 -storagePath "blockchain2.txt"
-// node test.js -p2pPort 6003 -p2pAutoStart true -p2pNodeId node3 -webPort 3002 -seedPeers '["ws://localhost:6001","ws://localhost:6002"]' -difficulty 6 -reward 100 -minEntriesPerBlock 3 -storagePath "blockchain3.txt"
+//   node testP2P1.js -id node1 -port 6001 -autoStart true -seedPeers '["ws://localhost:6002"]' -messageData "Hello!" -testMessageDelay 7000
+// AND in another terminal run:
+//   node testP2P1.js -id node2 -port 6002 -autoStart true -seedPeers '["ws://localhost:6001"]' -messageData "Hello!" -testMessageDelay 9000
+// AND and in another terminal run:
+//   node testP2P1.js -id node3 -port 6003 -autoStart true -seedPeers '["ws://localhost:6002"]' -messageData "Hello!" -testMessageDelay 11000
 
 ```
 
@@ -1446,226 +1374,6 @@ export default P2PService;
 
 ```
 
-# WebService.js
-
-```javascript
-/**
- * WebService.js
- *
- * The WebService class in the Blockcraft blockchain network is responsible for handling HTTP API communications.
- * This class serves as the interface for external applications to interact with the blockchain, facilitating
- * operations like querying blockchains.
- *
- * The class integrates with the NetworkNode to provide seamless interaction between the blockchain and external
- * HTTP requests. It is designed to be flexible and adaptable to various API needs and can be extended or modified
- * for specific use cases.
- *
- * Usage Example:
- * const webService = new WebService({ port: 8000 });
- * webService.setNetworkNode(networkNodeInstance);
- *
- * Routes:
- * GET /blockchain - Returns the entire blockchain.
- * GET /chain-integrity - Validates the blockchain and returns the result.
- * GET /block/:index - Returns the block at the specified index.
- * GET /latest-block - Returns the latest block in the blockchain.
- * POST /add-entry - Queues a new entry to be added to the blockchain. The entry data is provided in the request body.
- * GET /unchained-entries - Returns all queued entries that have not yet been added to a block.
- * GET /chained-entries - Returns all entries that have been added to the blockchain.
- *
- */
-
-import express from "express";
-import path from "path";
-import { fileURLToPath } from "url";
-class WebService {
-  constructor(config = {}) {
-    this.config = config;
-    this.networkNode = null;
-    this.app = express();
-    this.app.use(express.json());
-
-    this.initializeRoutes();
-    this.serveFrontend();
-    this.start();
-  }
-
-  setNetworkNode(networkNode) {
-    this.networkNode = networkNode;
-  }
-
-  setConfig(config) {
-    this.config = config;
-  }
-
-  initializeRoutes() {
-    const router = express.Router();
-
-    router.get("/blockchain", (req, res) => {
-      if (this.networkNode && this.networkNode.blockchain) {
-        res.json(this.networkNode.blockchain.chain);
-      } else {
-        res.status(503).send("Blockchain service is unavailable");
-      }
-    });
-
-    router.get("/chain-integrity", (req, res) => {
-      const validationResult = this.networkNode.blockchain.validateChain();
-
-      if (validationResult === true) {
-        res.json({ isValid: true, message: "Blockchain is valid" });
-      } else {
-        res.status(400).json({
-          isValid: false,
-          message: "Blockchain validation failed",
-          errors: validationResult,
-        });
-      }
-    });
-
-    router.get("/block/:index", (req, res) => {
-      const index = parseInt(req.params.index);
-      if (isNaN(index)) {
-        return res.status(400).send("Invalid index");
-      }
-
-      const block = this.networkNode.blockchain.getBlockByIndex(index);
-      if (!block) {
-        return res.status(404).send("Block not found");
-      }
-
-      res.json(block);
-    });
-
-    router.get("/latest-block", (req, res) => {
-      const latestBlock = this.networkNode.blockchain.getLatestBlock();
-      if (!latestBlock) {
-        return res.status(404).send("No blocks found in the blockchain");
-      }
-
-      res.json(latestBlock);
-    });
-
-    router.post("/add-entry", (req, res) => {
-      if (!req.body || Object.keys(req.body).length === 0) {
-        return res.status(400).send("No data provided");
-      }
-
-      try {
-        this.networkNode.blockchain.addEntry(req.body);
-        res.status(201).send("Entry added successfully");
-      } catch (error) {
-        res.status(500).send("Error adding entry: " + error.message);
-      }
-    });
-
-    router.get("/unchained-entries", (req, res) => {
-      try {
-        const unchainedEntries =
-          this.networkNode.blockchain.dataHandler.getPendingEntries();
-        res.json(unchainedEntries);
-      } catch (error) {
-        res
-          .status(500)
-          .send("Failed to retrieve unchained entries: " + error.message);
-      }
-    });
-
-    router.get("/chained-entries", (req, res) => {
-      try {
-        const blockchain = this.networkNode.blockchain;
-        const allEntries = blockchain.chain.flatMap((block) => block.data);
-        res.json(allEntries);
-      } catch (error) {
-        res
-          .status(500)
-          .send("Failed to retrieve chained entries: " + error.message);
-      }
-    });
-
-    this.app.use("/api", router);
-  }
-
-  serveFrontend() {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-    const frontendPath = path.join(
-      __dirname,
-      "node_modules/blockcraft-explorer/dist"
-    );
-    this.app.use(express.static(frontendPath));
-
-    this.app.get("*", (req, res) => {
-      res.sendFile(path.join(frontendPath, "index.html"));
-    });
-  }
-
-  start() {
-    const port = this.config.port || 3000;
-    this.app.listen(port, () => {
-      console.log(`\nWebService listening on port ${port}`);
-    });
-  }
-}
-
-export default WebService;
-
-```
-
-# testP2P1.js
-
-```javascript
-import P2PService from "./P2PService.js";
-
-function createP2PNode(config) {
-  console.clear();
-
-  const p2pService = new P2PService({
-    port: config.port,
-    autoStart: config.autoStart,
-    id: config.id,
-    seedPeers: config.seedPeers,
-  });
-
-  setTimeout(() => {
-    p2pService.broadcast({
-      type: "message",
-      data: `${config.messageData} from port ${config.port}`,
-      senderId: config.id,
-      messageId: Date.now(),
-    });
-  }, config.testMessageDelay);
-}
-
-let config = {};
-
-for (let i = 2; i < process.argv.length; i += 2) {
-  let key = process.argv[i];
-  let value = process.argv[i + 1];
-  if (key.startsWith("-")) {
-    config[key.substring(1)] = value;
-  }
-}
-
-"true" === config.autoStart
-  ? (config.autoStart = true)
-  : (config.autoStart = false);
-
-config.port = parseInt(config.port);
-config.seedPeers = JSON.parse(config.seedPeers);
-config.testMessageDelay = parseInt(config.testMessageDelay);
-
-createP2PNode(config);
-
-// Run this file with the following command:
-//   node testP2P1.js -id node1 -port 6001 -autoStart true -seedPeers '["ws://localhost:6002"]' -messageData "Hello!" -testMessageDelay 7000
-// AND in another terminal run:
-//   node testP2P1.js -id node2 -port 6002 -autoStart true -seedPeers '["ws://localhost:6001"]' -messageData "Hello!" -testMessageDelay 9000
-// AND and in another terminal run:
-//   node testP2P1.js -id node3 -port 6003 -autoStart true -seedPeers '["ws://localhost:6002"]' -messageData "Hello!" -testMessageDelay 11000
-
-```
-
 # StorageHandler.js
 
 ```javascript
@@ -1774,6 +1482,327 @@ class StorageHandler {
 }
 
 export default StorageHandler;
+
+```
+
+# test.js
+
+```javascript
+import {
+  NetworkNode,
+  Blockchain,
+  ProofOfWorkConsensus,
+  StandardMiningReward,
+  DataHandler,
+  StorageHandler,
+  P2PService,
+  WebService,
+} from "./blockcraft.js";
+
+let config = {};
+for (let i = 2; i < process.argv.length; i += 2) {
+  let key = process.argv[i];
+  let value = process.argv[i + 1];
+  if (key.startsWith("-")) {
+    config[key.substring(1)] = value;
+  }
+}
+
+"true" === config.p2pAutoStart
+  ? (config.p2pAutoStart = true)
+  : (config.p2pAutoStart = false);
+
+config.p2pPort = parseInt(config.p2pPort);
+config.webPort = parseInt(config.webPort);
+config.seedPeers = JSON.parse(config.seedPeers);
+config.testMessageDelay = parseInt(config.testMessageDelay);
+config.difficulty = parseInt(config.difficulty);
+config.reward = parseInt(config.reward);
+config.minEntriesPerBlock = parseInt(config.minEntriesPerBlock);
+
+async function blockchain(config) {
+  let entryCount = 0;
+  const numberEntriesToAdd = 1000;
+  const millisecondsBetweenEntries = 3000;
+
+  let blockchain = new Blockchain(
+    new ProofOfWorkConsensus({ difficulty: config.difficulty || 6 }),
+    new StandardMiningReward({ fixedReward: config.reward || 100 }),
+    new DataHandler({ minEntriesPerBlock: config.minEntriesPerBlock || 3 }),
+    new StorageHandler({ storagePath: config.storagePath || "blockchain.txt" }),
+    { blockchainName: config.blockchainName || "Blockcraft" }
+  );
+
+  let node = new NetworkNode(
+    blockchain,
+    new P2PService({
+      port: config.p2pPort,
+      autoStart: config.p2pAutoStart,
+      id: config.p2pNodeId,
+      seedPeers: config.seedPeers,
+    }),
+    new WebService({ port: config.webPort || 3000 })
+  );
+
+  node.blockchain.on("blockchainLoaded", (chain) => {
+    console.log(
+      `\nBlockchain with ${chain.length} block(s) found in storage and loaded.\n`
+    );
+  });
+
+  node.blockchain.on("genesisBlockCreated", (block) => {
+    console.log(
+      "\nNo blockchain found in storage.  New chain initialized with Genesis Block:\n",
+      block,
+      "\n"
+    );
+  });
+
+  node.blockchain.on("blockCreationStarted", (data) => {
+    console.log(
+      `\nNew block creation started for block #${node.blockchain.chain.length} with data:\n`,
+      data,
+      "\nMining in progress, please stand by...\n"
+    );
+  });
+
+  node.blockchain.on("blockCreated", (block) => {
+    console.log(
+      `\nBlock #${block.index} mined in ${
+        (Date.now() - block.timestamp) / 1000
+      } seconds and appended to chain:\n`,
+      block.toSerializableObject()
+    );
+  });
+
+  node.blockchain.on("incentiveProcessed", (incentiveResult) => {
+    console.log(
+      `\nIncentive of ${incentiveResult.incentiveDetails.incentiveAmount} distributed to ${incentiveResult.incentiveDetails.blockCreator} for block #${incentiveResult.blockIndex}:\n`
+    );
+  });
+
+  const intervalId = setInterval(() => {
+    if (entryCount >= numberEntriesToAdd) {
+      clearInterval(intervalId);
+    } else {
+      console.log(
+        `\nAdding \"${config.p2pNodeId.toUpperCase()}-Entry ${entryCount}\" to queue.`
+      );
+      node.blockchain.addEntry({
+        data: `${config.p2pNodeId.toUpperCase()}-Entry ${entryCount}`,
+      });
+      entryCount++;
+    }
+  }, millisecondsBetweenEntries);
+
+  setInterval(() => {}, 3600000); // Keep the process running
+}
+
+console.clear();
+
+blockchain(config);
+
+// Run this file with the following command:
+//   node test.js -p2pPort 6001 -p2pAutoStart true -p2pNodeId node1 -webPort 3000 -seedPeers '["ws://localhost:6002"]' -difficulty 6 -reward 100 -minEntriesPerBlock 3 -storagePath blockchain.txt
+//
+// try the following in separate terminals:
+// node test.js -p2pPort 6001 -p2pAutoStart true -p2pNodeId node1 -webPort 3000 -seedPeers '["ws://localhost:6002","ws://localhost:6003"]' -difficulty 6 -reward 100 -minEntriesPerBlock 3 -storagePath "blockchain.txt"
+// node test.js -p2pPort 6002 -p2pAutoStart true -p2pNodeId node2 -webPort 3001 -seedPeers '["ws://localhost:6001","ws://localhost:6003"]' -difficulty 6 -reward 100 -minEntriesPerBlock 3 -storagePath "blockchain2.txt"
+// node test.js -p2pPort 6003 -p2pAutoStart true -p2pNodeId node3 -webPort 3002 -seedPeers '["ws://localhost:6001","ws://localhost:6002"]' -difficulty 6 -reward 100 -minEntriesPerBlock 3 -storagePath "blockchain3.txt"
+
+```
+
+# WebService.js
+
+```javascript
+/**
+ * WebService.js
+ *
+ * The WebService class in the Blockcraft blockchain network is responsible for handling HTTP API communications.
+ * This class serves as the interface for external applications to interact with the blockchain, facilitating
+ * operations like querying blockchains.
+ *
+ * The class integrates with the NetworkNode to provide seamless interaction between the blockchain and external
+ * HTTP requests. It is designed to be flexible and adaptable to various API needs and can be extended or modified
+ * for specific use cases.
+ *
+ * Usage Example:
+ * const webService = new WebService({ port: 8000 });
+ * webService.setNetworkNode(networkNodeInstance);
+ *
+ * Routes:
+ * GET /blockchain - Returns the entire blockchain.
+ * GET /chain-integrity - Validates the blockchain and returns the result.
+ * GET /block/:index - Returns the block at the specified index.
+ * GET /latest-block - Returns the latest block in the blockchain.
+ * POST /add-entry - Queues a new entry to be added to the blockchain. The entry data is provided in the request body.
+ * GET /unchained-entries - Returns all queued entries that have not yet been added to a block.
+ * GET /chained-entries - Returns all entries that have been added to the blockchain.
+ *
+ */
+
+import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+class WebService {
+  constructor(config = {}) {
+    this.config = config;
+    this.networkNode = null;
+    this.app = express();
+    this.app.use(express.json());
+
+    this.initializeRoutes();
+    this.serveFrontend();
+    this.start();
+  }
+
+  setNetworkNode(networkNode) {
+    this.networkNode = networkNode;
+  }
+
+  setConfig(config) {
+    this.config = config;
+  }
+
+  initializeRoutes() {
+    const router = express.Router();
+
+    router.get("/blockchain", (req, res) => {
+      if (this.networkNode && this.networkNode.blockchain) {
+        res.json(this.networkNode.blockchain.chain);
+      } else {
+        res.status(503).send("Blockchain service is unavailable");
+      }
+    });
+
+    router.get("/chain/info", async (req, res) => {
+      try {
+        const chain = this.networkNode.blockchain.chain;
+
+        const chainInfo = {
+          blockchainName: this.networkNode.blockchain.config.blockchainName,
+          bornOn: chain[0].timestamp,
+          currentHeight: chain.length,
+        };
+
+        if (chain[chain.length - 1].hasOwnProperty("difficulty")) {
+          chainInfo.difficulty = chain[chain.length - 1].difficulty;
+        }
+
+        if (typeof this.networkNode.blockchain.getTotalSupply === "function") {
+          const totalSupply = this.networkNode.blockchain.getTotalSupply();
+          if (totalSupply !== undefined) {
+            chainInfo.totalSupply = totalSupply;
+          }
+        }
+
+        res.json(chainInfo);
+      } catch (error) {
+        console.error("Failed to get chain info:", error);
+        res.status(500).send("Error fetching chain information");
+      }
+    });
+
+    router.get("/chain/integrity", (req, res) => {
+      const validationResult = this.networkNode.blockchain.validateChain();
+
+      if (validationResult === true) {
+        res.json({ isValid: true, message: "Blockchain is valid" });
+      } else {
+        res.status(400).json({
+          isValid: false,
+          message: "Blockchain validation failed",
+          errors: validationResult,
+        });
+      }
+    });
+
+    router.get("/block/:index", (req, res) => {
+      const index = parseInt(req.params.index);
+      if (isNaN(index)) {
+        return res.status(400).send("Invalid index");
+      }
+
+      const block = this.networkNode.blockchain.getBlockByIndex(index);
+      if (!block) {
+        return res.status(404).send("Block not found");
+      }
+
+      res.json(block);
+    });
+
+    router.get("/latest-block", (req, res) => {
+      const latestBlock = this.networkNode.blockchain.getLatestBlock();
+      if (!latestBlock) {
+        return res.status(404).send("No blocks found in the blockchain");
+      }
+
+      res.json(latestBlock);
+    });
+
+    router.post("/add-entry", (req, res) => {
+      if (!req.body || Object.keys(req.body).length === 0) {
+        return res.status(400).send("No data provided");
+      }
+
+      try {
+        this.networkNode.blockchain.addEntry(req.body);
+        res.status(201).send("Entry added successfully");
+      } catch (error) {
+        res.status(500).send("Error adding entry: " + error.message);
+      }
+    });
+
+    router.get("/unchained-entries", (req, res) => {
+      try {
+        const unchainedEntries =
+          this.networkNode.blockchain.dataHandler.getPendingEntries();
+        res.json(unchainedEntries);
+      } catch (error) {
+        res
+          .status(500)
+          .send("Failed to retrieve unchained entries: " + error.message);
+      }
+    });
+
+    router.get("/chained-entries", (req, res) => {
+      try {
+        const blockchain = this.networkNode.blockchain;
+        const allEntries = blockchain.chain.flatMap((block) => block.data);
+        res.json(allEntries);
+      } catch (error) {
+        res
+          .status(500)
+          .send("Failed to retrieve chained entries: " + error.message);
+      }
+    });
+
+    this.app.use("/api", router);
+  }
+
+  serveFrontend() {
+    const __filename = fileURLToPath(import.meta.url);
+    const __dirname = path.dirname(__filename);
+    const frontendPath = path.join(
+      __dirname,
+      "node_modules/blockcraft-explorer/dist"
+    );
+    this.app.use(express.static(frontendPath));
+
+    this.app.get("*", (req, res) => {
+      res.sendFile(path.join(frontendPath, "index.html"));
+    });
+  }
+
+  start() {
+    const port = this.config.port || 3000;
+    this.app.listen(port, () => {
+      console.log(`\nWebService listening on port ${port}`);
+    });
+  }
+}
+
+export default WebService;
 
 ```
 
