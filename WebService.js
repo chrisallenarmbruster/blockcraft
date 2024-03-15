@@ -97,16 +97,7 @@ class WebService {
 
     router.get("/chain/integrity", (req, res) => {
       const validationResult = this.networkNode.blockchain.validateChain();
-
-      if (validationResult === true) {
-        res.json({ isValid: true, message: "Blockchain is valid" });
-      } else {
-        res.status(400).json({
-          isValid: false,
-          message: "Blockchain validation failed",
-          errors: validationResult,
-        });
-      }
+      res.json(validationResult);
     });
 
     router.get("/block/:index", (req, res) => {

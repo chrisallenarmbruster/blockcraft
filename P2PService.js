@@ -242,7 +242,7 @@ class P2PService {
   handleFullChain(msg) {
     const receivedChain = msg.data;
     if (
-      this.networkNode.blockchain.validateChain(receivedChain) &&
+      this.networkNode.blockchain.validateChain(receivedChain).isValid &&
       receivedChain.length > this.networkNode.blockchain.chain.length
     ) {
       console.log(

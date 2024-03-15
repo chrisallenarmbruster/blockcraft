@@ -19,7 +19,7 @@ class NetworkNode {
     blockchainInstance,
     p2pServiceInstance,
     webServiceInstance,
-    config
+    config = {}
   ) {
     this.blockchain = blockchainInstance;
     this.p2pService = p2pServiceInstance;

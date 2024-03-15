@@ -190,27 +190,60 @@ class Blockchain extends EventEmitter {
   validateChain(externalChain = null) {
     const chainToValidate = externalChain || this.chain;
     const errors = [];
+    const chainIntegrity = {
+      isValid: true,
+      blockCount: chainToValidate.length,
+      areHashesValid: true,
+      arePreviousHashesValid: true,
+      areTimestampsValid: true,
+      areIndexesValid: true,
+      errors: [],
+    };
     for (let i = 1; i < chainToValidate.length; i++) {
       const currentBlock = chainToValidate[i];
       const previousBlock = chainToValidate[i - 1];
 
       if (this.consensusMechanism.validateBlockHash(currentBlock) !== true) {
-        errors.push(`Block ${i} has been tampered with.`);
+        chainIntegrity.errors.push({
+          errorType: "hash",
+          blockNumber: i,
+          message: `Block ${i} has a mismatch between the hash and content.`,
+        });
+        chainIntegrity.areHashesValid = false;
+        chainIntegrity.isValid = false;
       }
 
       if (currentBlock.previousHash !== previousBlock.hash) {
-        errors.push(`Block ${i} has an invalid previous hash.`);
+        chainIntegrity.errors.push({
+          errorType: "previousHash",
+          blockNumber: i,
+          message: `Block ${i} has an invalid previous hash.`,
+        });
+        chainIntegrity.arePreviousHashesValid = false;
+        chainIntegrity.isValid = false;
       }
 
       if (currentBlock.index !== i) {
-        errors.push(`Block ${i} has an invalid index.`);
+        chainIntegrity.errors.push({
+          errorType: "index",
+          blockNumber: i,
+          message: `Block ${i} has an index discrepancy.`,
+        });
+        chainIntegrity.areIndexesValid = false;
+        chainIntegrity.isValid = false;
       }
 
       if (!this.isValidTimestamp(currentBlock, previousBlock)) {
-        errors.push(`Block ${i} has an invalid timestamp.`);
+        chainIntegrity.errors.push({
+          errorType: "timestamp",
+          blockNumber: i,
+          message: `Block ${i} has a timestamp discrepancy.`,
+        });
+        chainIntegrity.areTimestampsValid = false;
+        chainIntegrity.isValid = false;
       }
     }
-    return errors.length ? errors : true;
+    return chainIntegrity;
   }
 
   isValidTimestamp(nextBlock, previousBlock) {
@@ -237,7 +270,7 @@ class Blockchain extends EventEmitter {
         if (newChain.length <= this.chain.length) {
           console.log("Received chain is not longer than the current chain.");
           return;
-        } else if (!this.validateChain(newChain)) {
+        } else if (!this.validateChain(newChain).isValid) {
           console.log("The received chain is not valid.");
           return;
         }
