@@ -1,6 +1,6 @@
-# Blockcraft Project 🛠️
+# Blockcraft 🚀
 
-Welcome to the Blockcraft Project, my pioneering blockchain toolkit crafted from scratch to empower developers, innovators, and students 🎓. This toolkit is designed for the creation of robust, efficient, and scalable decentralized applications (dApps) that leverage the full potential of blockchain technology 💡. By starting from the ground up, Blockcraft is tailored to meet the high demands of modern blockchain development, offering an extensive suite of tools and components essential for building cutting-edge blockchain solutions 🔧.
+Welcome to the Blockcraft, my pioneering blockchain toolkit crafted from scratch to empower developers, innovators, and students 🎓. This toolkit is designed for the creation of robust, efficient, and scalable decentralized applications (dApps) that leverage the full potential of blockchain technology 💡. By starting from the ground up, Blockcraft is tailored to meet the high demands of modern blockchain development, offering an extensive suite of tools and components essential for building cutting-edge blockchain solutions 🔧.
 
 ## Key Features
 
@@ -14,7 +14,7 @@ Welcome to the Blockcraft Project, my pioneering blockchain toolkit crafted from
 
 🛠 **All-In-One Toolkit**: From consensus algorithms to peer-to-peer services, Blockcraft provides a full array of tools needed to design, deploy, and manage innovative blockchain applications efficiently.
 
-## Getting Started 🚀
+## Getting Started 🛠️
 
 Dive into the world of blockchain development with Blockcraft by following these setup instructions:
 

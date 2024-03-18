@@ -8,7 +8,7 @@ node example.js -p2pPort 6003 -p2pAutoStart true -p2pNodeId node3 -webPort 3002 
 
 Add additional nodes as needed, and adjust the seedPeers accordingly.
 
-This will spin up three dApp network nodes on ports 3000, 3001, and 3002, respectively, and they will automatically connect to each other. 
+This will spin up three dApp network nodes communicating with each other via WebSockets on ports 6001,6002 qnd 6003 while listening on ports 3000, 3001, and 3002, respectively, for http requests.  They will automatically connect to each other. 
 They will generate fictitious transactions and mine them into blocks, and distribute the mining rewards to the block creators.
 They will keep transaction pools and blockchains in sync with each other, and will handle network disconnections and reconnections. 
 You can access the web interfaces at: localhost:3000, localhost:3001, and localhost:3002
