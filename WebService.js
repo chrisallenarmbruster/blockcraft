@@ -100,6 +100,62 @@ class WebService {
       res.json(validationResult);
     });
 
+    router.get("/blocks", (req, res) => {
+      const { limit = 10, sort = "desc" } = req.query;
+      let { startWithIndex } = req.query;
+
+      if (sort === "asc" && startWithIndex === undefined) {
+        startWithIndex = "0";
+      } else if (startWithIndex === undefined) {
+        startWithIndex = this.networkNode.blockchain
+          .getLatestBlock()
+          .index.toString();
+      }
+
+      const limitNum = Math.min(Math.max(parseInt(limit, 10), 1), 100);
+      const startWithIndexNum = parseInt(startWithIndex, 10);
+
+      let filteredChain = this.networkNode.blockchain
+        .chainToSerializableObject()
+        .filter((block) => {
+          return sort === "asc"
+            ? block.index >= startWithIndexNum
+            : block.index <= startWithIndexNum;
+        });
+
+      filteredChain =
+        sort === "asc"
+          ? filteredChain.sort((a, b) => a.index - b.index)
+          : filteredChain.sort((a, b) => b.index - a.index);
+
+      const blocks = filteredChain.slice(0, limitNum);
+
+      let lastIndexInResponse =
+        blocks.length > 0 ? blocks[blocks.length - 1].index : null;
+
+      const nextIndexReference =
+        blocks.length > 0
+          ? sort === "asc"
+            ? blocks[blocks.length - 1].index
+            : blocks[0].index
+          : startWithIndexNum;
+
+      const meta = {
+        requestedLimit: limitNum,
+        returnedBlocks: blocks.length,
+        lastIndexInResponse,
+        nextIndexReference:
+          sort === "asc"
+            ? nextIndexReference + 1
+            : nextIndexReference - limitNum < 0
+            ? null
+            : nextIndexReference - limitNum,
+        sort,
+      };
+
+      res.json({ blocks, meta });
+    });
+
     router.get("/block/:index", (req, res) => {
       const index = parseInt(req.params.index);
       if (isNaN(index)) {
