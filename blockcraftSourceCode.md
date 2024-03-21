@@ -45,6 +45,94 @@
 
 ```
 
+# README.md
+
+```markdown
+# Blockcraft 🚀
+
+Welcome to the Blockcraft, my pioneering blockchain toolkit crafted from scratch to empower developers, innovators, and students 🎓. This toolkit is designed for the creation of robust, efficient, and scalable decentralized applications (dApps) that leverage the full potential of blockchain technology 💡. By starting from the ground up, Blockcraft is tailored to meet the high demands of modern blockchain development, offering an extensive suite of tools and components essential for building cutting-edge blockchain solutions 🔧.
+
+## Key Features
+
+🚀 **From Scratch to Advanced**: Developed from the ground up with a focus on innovation and quality, Blockcraft is not just another blockchain toolkit. It's a comprehensive solution forged through careful design and development to ensure the highest standards of performance and reliability.
+
+🔧 **Modular and Flexible**: Emphasizing flexibility, Blockcraft features a modular design that allows developers to integrate and customize components seamlessly, fitting perfectly into various blockchain application scenarios.
+
+🔒 **Top-Notch Security**: With security at its core, Blockcraft incorporates advanced security protocols to ensure transaction and data integrity, setting a new benchmark for trust and reliability in the blockchain space.
+
+🌐 **Support for Decentralized Networks**: Designed to foster decentralized applications, Blockcraft comes with full support for creating and managing peer-to-peer networks, enabling direct and secure transactions and interactions.
+
+🛠 **All-In-One Toolkit**: From consensus algorithms to peer-to-peer services, Blockcraft provides a full array of tools needed to design, deploy, and manage innovative blockchain applications efficiently.
+
+## Getting Started 🛠️
+
+Dive into the world of blockchain development with Blockcraft by following these setup instructions:
+
+1. **Installation**
+
+```bash
+npm install github:chrisallenarmbruster/blockcraft
+```
+
+## Usage 🔍
+
+Blockcraft is designed to empower developers with the flexibility to build customizable and efficient blockchain systems. At the core of Blockcraft's design is the separation of concerns, allowing developers to mix and match different components for consensus mechanisms, incentive models, data handling, and storage. This section will guide you through using these features to set up a comprehensive blockchain solution.
+
+### The Blockchain Class 💾
+
+The `Blockchain` class is the heart ❤️ of your blockchain application, orchestrating the interaction between various components. It is initialized with several key parameters that define its behavior:
+
+- **Consensus Mechanism** 🤝: Determines how consensus is achieved on the blockchain. Blockcraft allows for the integration of various consensus mechanisms, enabling you to choose or develop one that best fits your application's requirements.
+
+- **Incentive Model** 🏅: Defines the strategy for rewarding network participants. This modular approach lets you implement a custom incentive model that motivates participation in your blockchain network.
+
+- **Data Handler** 📊: Manages the processing and storage of data within blocks. By customizing the data handler, you can tailor how data is treated, validated, and stored on your blockchain.
+
+- **Storage Handler** 🗃️: Controls how blockchain data is persisted. Whether you're using file systems, databases, or other storage solutions, the storage handler ensures your blockchain data is securely saved and retrievable.
+
+- **Configuration Object** ⚙️: A flexible configuration object allows you to fine-tune the settings and parameters of your blockchain, such as block size limits, transaction fees, and network protocols.
+
+```javascript
+const blockchain = new Blockchain({
+  consensusMechanism: new ProofOfWorkConsensus(),
+  incentiveModel: new StandardMiningReward(),
+  dataHandler: new CustomDataHandler(),
+  storageHandler: new FileStorageHandler(),
+  config: { blockchainName: "my-blockcraft-blockchain" },
+});
+```
+
+### The NetworkNode Class 🌍
+
+For blockchain networks to function, nodes must communicate and synchronize with each other 🤝. The `NetworkNode` class encapsulates the network layer, integrating:
+
+- **P2P Service** 🔄: Manages peer-to-peer communication between nodes, ensuring data is shared efficiently across the network without relying on a central server.
+- **Web Service** 🌐: Provides an HTTP interface for your blockchain, allowing external applications and users to interact with the blockchain via web requests.
+
+The `NetworkNode` class takes an instance of your `Blockchain` 💼, along with instances of the P2P service and Web service, fully encapsulating the networking functionality and allowing your blockchain to operate within a distributed network 🚀.
+
+```javascript
+const networkNode = new NetworkNode(
+  blockchain,
+  new P2PService(),
+  new WebService()
+);
+```
+
+### Example Included 📝
+
+To help you get started, a simple example (see [example.js](./example.js)) is included that demonstrates how to set up a basic blockchain and dApp nodes to host it using Blockcraft. This example showcases the creation of a blockchain with a Proof-of-Work consensus mechanism, a standard mining reward incentive model, and file-based data and storage handlers. The example also demonstrates how to set up a network node to host the blockchain, allowing it to communicate with other nodes in a decentralized network.
+
+### Flexibility and Customization 🔧
+
+The separation of concerns within Blockcraft not only ensures cleaner code and easier maintenance but also grants unparalleled flexibility 🤸‍♂️. Developers can swap out consensus mechanisms 🔁, experiment with different incentive models, customize data handling logic, and choose their preferred method of data storage 🗃 without altering the core blockchain logic. The same is true for creating dApp nodes for hosting blockchains, allowing peer-to-peer services 🌐 and web interfaces to be switched. This design philosophy encourages innovation and experimentation 🚀, enabling the creation of a blockchain that perfectly fits each developer's unique requirements.
+
+## Final Thoughts 🚀
+
+Blockcraft's modular architecture is designed with the developer in mind 🧠, offering the building blocks 🏗️ to create, customize, and scale blockchain applications. By understanding and utilizing the core components of Blockcraft—`Blockchain` and `NetworkNode` classes, along with their associated services and handlers ✨, Blockcraft equips developers to construct blockchain solutions that are tailored 🛠️ to each application's needs.
+
+```
+
 # Block.js
 
 ```javascript
@@ -110,6 +198,69 @@ class Block {
 }
 
 export default Block;
+
+```
+
+# ConsensusMechanism.js
+
+```javascript
+/**
+ * ConsensusMechanism.js
+ *
+ * This file defines the ConsensusMechanism class, which serves as an abstract base class for different consensus mechanisms in a blockchain.
+ *
+ * This class or its subclasses are passed into the Blockchain class to handle the logic for creating the genesis block, and aligning on new valid blocks.
+ *
+ * The ConsensusMechanism class is constructed with a configuration object and has methods for setting the blockchain instance, creating the genesis block, creating a new block, and updating the configuration.
+ *
+ * The createGenesisBlock and createBlock methods are placeholders that should be overridden by subclasses to implement specific logic for creating the genesis block and new blocks.
+ *
+ * The setBlockchain method is used to set the blockchain instance that the consensus mechanism belongs to.
+ *
+ * The updateConfig method is used to update the configuration of the consensus mechanism.
+ *
+ */
+
+class ConsensusMechanism {
+  constructor(config) {
+    this.config = config;
+    this.blockchain = null;
+  }
+
+  setBlockchain(blockchainInstance) {
+    this.blockchain = blockchainInstance;
+  }
+
+  createGenesisBlock() {
+    // Placeholder for genesis block creation
+    // This method can be overridden by subclasses to implement specific genesis block logic
+    throw new Error("createGenesisBlock method must be implemented");
+  }
+
+  createBlock(index, data, previousHash) {
+    // Placeholder for block creation
+    // This method can be overridden by subclasses to implement specific block creation logic
+    throw new Error("createBlock method must be implemented");
+  }
+
+  validateBlockHash(block) {
+    // Placeholder for block hash validation
+    // This method can be overridden by subclasses to implement specific block hash validation logic
+    throw new Error("validateBlockHash method must be implemented");
+  }
+
+  async validateBlockConsensus(block) {
+    // Placeholder for block consensus validation
+    // This method can be overridden by subclasses to implement specific block consensus validation logic
+    throw new Error("validateBlockConsensus method must be implemented");
+  }
+
+  updateConfig(newConfig) {
+    this.config = newConfig;
+  }
+}
+
+export default ConsensusMechanism;
 
 ```
 
@@ -187,66 +338,144 @@ export {
 
 ```
 
-# ConsensusMechanism.js
+# DataHandler.js
 
 ```javascript
 /**
- * ConsensusMechanism.js
+ * DataHandler.js
  *
- * This file defines the ConsensusMechanism class, which serves as an abstract base class for different consensus mechanisms in a blockchain.
+ * This file defines the DataHandler class, which is responsible for managing the data entries in our blockchain implementation.
  *
- * This class or its subclasses are passed into the Blockchain class to handle the logic for creating the genesis block, and aligning on new valid blocks.
+ * An entry is a piece of data that is added to the blockchain. It can be anything from a simple string to a complex transaction object, medical record or vote.
  *
- * The ConsensusMechanism class is constructed with a configuration object and has methods for setting the blockchain instance, creating the genesis block, creating a new block, and updating the configuration.
+ * This class or its subclasses are passed into the Blockchain class to handle the data entries.
  *
- * The createGenesisBlock and createBlock methods are placeholders that should be overridden by subclasses to implement specific logic for creating the genesis block and new blocks.
+ * The DataHandler class is constructed with a configuration object and maintains a list of pending entries that are waiting to be added to the blockchain.
  *
- * The setBlockchain method is used to set the blockchain instance that the consensus mechanism belongs to.
+ * The addPendingEntry method is used to add a new entry to the pending entries. It validates the entry, transforms it, and adds it to the list. If the conditions for adding a new block are met, it triggers the creation of a new block with the pending entries.
  *
- * The updateConfig method is used to update the configuration of the consensus mechanism.
+ * The getPendingEntries and clearPendingEntries methods are used to retrieve and clear the pending entries, respectively.
+ *
+ * The validatePendingEntry method is used to validate a pending entry. It should be overridden by subclasses to implement specific validation logic.
+ *
+ * Treat this as a base class for the DataHandler. It should be extended by subclasses to implement specific data handling logic.
  *
  */
-
-class ConsensusMechanism {
+import { nanoid } from "nanoid";
+class DataHandler {
   constructor(config) {
     this.config = config;
+    this.queuedEntries = [];
+    this.pendingEntries = [];
+    this.entryPool = new Map();
     this.blockchain = null;
+    this.entryCache = new Set();
   }
 
   setBlockchain(blockchainInstance) {
     this.blockchain = blockchainInstance;
-  }
-
-  createGenesisBlock() {
-    // Placeholder for genesis block creation
-    // This method can be overridden by subclasses to implement specific genesis block logic
-    throw new Error("createGenesisBlock method must be implemented");
-  }
-
-  createBlock(index, data, previousHash) {
-    // Placeholder for block creation
-    // This method can be overridden by subclasses to implement specific block creation logic
-    throw new Error("createBlock method must be implemented");
-  }
-
-  validateBlockHash(block) {
-    // Placeholder for block hash validation
-    // This method can be overridden by subclasses to implement specific block hash validation logic
-    throw new Error("validateBlockHash method must be implemented");
-  }
-
-  async validateBlockConsensus(block) {
-    // Placeholder for block consensus validation
-    // This method can be overridden by subclasses to implement specific block consensus validation logic
-    throw new Error("validateBlockConsensus method must be implemented");
+    this.blockchain.on("blockCreationEnded", (block) => {
+      if (block) {
+        this.removeProcessedTransactions(block);
+      }
+      this.checkAndInitiateBlockCreation();
+    });
+    this.blockchain.on("peerBlockAdded", (block) => {
+      if (block) {
+        this.removeProcessedTransactions(block);
+      }
+      this.checkAndInitiateBlockCreation();
+    });
+    this.blockchain.on("newPeerChainAccepted", (newChain) => {
+      this.updateEntryPoolWithNewChain(newChain);
+    });
   }
 
   updateConfig(newConfig) {
     this.config = newConfig;
   }
+
+  addPendingEntry(entry) {
+    if (!entry.entryId) {
+      entry.entryId = nanoid();
+    }
+
+    if (!this.entryPool.has(entry.entryId)) {
+      if (this.validatePendingEntry(entry)) {
+        this.entryPool.set(entry.entryId, entry);
+        this.checkAndInitiateBlockCreation();
+      }
+    }
+  }
+
+  checkAndInitiateBlockCreation() {
+    if (
+      this.entryPool.size >= this.config.minEntriesPerBlock &&
+      !this.blockchain.blockCreationInProgress
+    ) {
+      this.blockchain.addBlock(Array.from(this.entryPool.values()));
+    }
+  }
+
+  removeProcessedTransactions(block) {
+    if (block.data !== "Genesis Block") {
+      block.data.forEach((entry) => {
+        this.entryPool.delete(entry.entryId);
+      });
+    }
+  }
+
+  updateEntryPoolWithNewChain(newChain) {
+    newChain.forEach((block) => {
+      this.removeProcessedTransactions(block);
+    });
+  }
+
+  clearQueuedEntries() {
+    this.entryPool.clear();
+  }
+
+  getPendingEntries() {
+    return Array.from(this.entryPool.values());
+  }
+
+  validatePendingEntry(entry) {
+    entry.data.toUpperCase().includes("BOGUS");
+    return entry.data.toUpperCase().includes("BOGUS") ? false : true;
+    // return this.config.validateEntry(entry);
+    // Placeholder for entry validation
+    // This method can be overridden by subclasses to implement specific entry validation logic
+    throw new Error("validateEntry method must be implemented");
+  }
+
+  transformPendingEntry(entry) {
+    return entry.data.toUpperCase();
+    // return this.config.transformEntry(entry);
+    // Placeholder for entry transformation
+    // This method can be overridden by subclasses to implement specific entry transformation logic
+    throw new Error("transformEntry method must be implemented");
+  }
+
+  deepCopy(obj) {
+    if (obj === null || typeof obj !== "object") {
+      return obj;
+    }
+
+    if (typeof obj === "function") {
+      return new Function("return " + obj.toString())();
+    }
+
+    let tempObj = Array.isArray(obj) ? [] : {};
+
+    for (let key in obj) {
+      tempObj[key] = this.deepCopy(obj[key]);
+    }
+
+    return tempObj;
+  }
 }
 
-export default ConsensusMechanism;
+export default DataHandler;
 
 ```
 
@@ -563,289 +792,62 @@ export default Blockchain;
 
 ```
 
-# DataHandler.js
+# NetworkNode.js
 
 ```javascript
 /**
- * DataHandler.js
+ * NetworkNode.js
  *
- * This file defines the DataHandler class, which is responsible for managing the data entries in our blockchain implementation.
+ * This file defines the NetworkNode class, a central component of the Blockcraft blockchain network.
+ * The NetworkNode class integrates the blockchain logic with network functionalities, enabling node-to-node
+ * communication and providing an HTTP API for external interaction.
  *
- * An entry is a piece of data that is added to the blockchain. It can be anything from a simple string to a complex transaction object, medical record or vote.
+ * The class accepts instances of the Blockchain, P2PService, and WebService as parameters, facilitating
+ * a modular and flexible architecture. Each of these components is responsible for a specific aspect of
+ * the blockchain network operation, allowing for easy updates and maintenance.
  *
- * This class or its subclasses are passed into the Blockchain class to handle the data entries.
- *
- * The DataHandler class is constructed with a configuration object and maintains a list of pending entries that are waiting to be added to the blockchain.
- *
- * The addPendingEntry method is used to add a new entry to the pending entries. It validates the entry, transforms it, and adds it to the list. If the conditions for adding a new block are met, it triggers the creation of a new block with the pending entries.
- *
- * The getPendingEntries and clearPendingEntries methods are used to retrieve and clear the pending entries, respectively.
- *
- * The validatePendingEntry method is used to validate a pending entry. It should be overridden by subclasses to implement specific validation logic.
- *
- * Treat this as a base class for the DataHandler. It should be extended by subclasses to implement specific data handling logic.
+ * Usage:
+ * const networkNode = new NetworkNode(blockchainInstance, p2pServiceInstance, webServiceInstance, config);
  *
  */
-import { nanoid } from "nanoid";
-class DataHandler {
-  constructor(config) {
-    this.config = config;
-    this.queuedEntries = [];
-    this.pendingEntries = [];
-    this.entryPool = new Map();
-    this.blockchain = null;
-    this.entryCache = new Set();
-  }
 
-  setBlockchain(blockchainInstance) {
+class NetworkNode {
+  constructor(
+    blockchainInstance,
+    p2pServiceInstance,
+    webServiceInstance,
+    config = {}
+  ) {
     this.blockchain = blockchainInstance;
-    this.blockchain.on("blockCreationEnded", (block) => {
-      if (block) {
-        this.removeProcessedTransactions(block);
-      }
-      this.checkAndInitiateBlockCreation();
-    });
-    this.blockchain.on("peerBlockAdded", (block) => {
-      if (block) {
-        this.removeProcessedTransactions(block);
-      }
-      this.checkAndInitiateBlockCreation();
-    });
-    this.blockchain.on("newPeerChainAccepted", (newChain) => {
-      this.updateEntryPoolWithNewChain(newChain);
-    });
-  }
+    this.p2pService = p2pServiceInstance;
+    this.webService = webServiceInstance;
+    this.config = config;
 
-  updateConfig(newConfig) {
-    this.config = newConfig;
-  }
+    this.blockchain?.setNetworkNode(this);
+    this.p2pService?.setNetworkNode(this);
+    this.webService?.setNetworkNode(this);
 
-  addPendingEntry(entry) {
-    if (!entry.entryId) {
-      entry.entryId = nanoid();
-    }
+    if (this.blockchain && this.p2pService) {
+      this.blockchain.on("entryAdded", (entry) => {
+        this.p2pService.broadcastEntry(entry);
+      });
 
-    if (!this.entryPool.has(entry.entryId)) {
-      if (this.validatePendingEntry(entry)) {
-        this.entryPool.set(entry.entryId, entry);
-        this.checkAndInitiateBlockCreation();
-      }
-    }
-  }
+      this.blockchain.on("blockCreated", (block) => {
+        this.p2pService.broadcastBlock(block);
+      });
 
-  checkAndInitiateBlockCreation() {
-    if (
-      this.entryPool.size >= this.config.minEntriesPerBlock &&
-      !this.blockchain.blockCreationInProgress
-    ) {
-      this.blockchain.addBlock(Array.from(this.entryPool.values()));
-    }
-  }
-
-  removeProcessedTransactions(block) {
-    if (block.data !== "Genesis Block") {
-      block.data.forEach((entry) => {
-        this.entryPool.delete(entry.entryId);
+      this.blockchain.on("peerBlockAdded", (block) => {
+        console.log("Peer block added:", block);
       });
     }
   }
 
-  updateEntryPoolWithNewChain(newChain) {
-    newChain.forEach((block) => {
-      this.removeProcessedTransactions(block);
-    });
-  }
-
-  clearQueuedEntries() {
-    this.entryPool.clear();
-  }
-
-  getPendingEntries() {
-    return Array.from(this.entryPool.values());
-  }
-
-  validatePendingEntry(entry) {
-    entry.data.toUpperCase().includes("BOGUS");
-    return entry.data.toUpperCase().includes("BOGUS") ? false : true;
-    // return this.config.validateEntry(entry);
-    // Placeholder for entry validation
-    // This method can be overridden by subclasses to implement specific entry validation logic
-    throw new Error("validateEntry method must be implemented");
-  }
-
-  transformPendingEntry(entry) {
-    return entry.data.toUpperCase();
-    // return this.config.transformEntry(entry);
-    // Placeholder for entry transformation
-    // This method can be overridden by subclasses to implement specific entry transformation logic
-    throw new Error("transformEntry method must be implemented");
-  }
-
-  deepCopy(obj) {
-    if (obj === null || typeof obj !== "object") {
-      return obj;
-    }
-
-    if (typeof obj === "function") {
-      return new Function("return " + obj.toString())();
-    }
-
-    let tempObj = Array.isArray(obj) ? [] : {};
-
-    for (let key in obj) {
-      tempObj[key] = this.deepCopy(obj[key]);
-    }
-
-    return tempObj;
-  }
-}
-
-export default DataHandler;
-
-```
-
-# README.md
-
-```markdown
-# Blockcraft 🚀
-
-Welcome to the Blockcraft, my pioneering blockchain toolkit crafted from scratch to empower developers, innovators, and students 🎓. This toolkit is designed for the creation of robust, efficient, and scalable decentralized applications (dApps) that leverage the full potential of blockchain technology 💡. By starting from the ground up, Blockcraft is tailored to meet the high demands of modern blockchain development, offering an extensive suite of tools and components essential for building cutting-edge blockchain solutions 🔧.
-
-## Key Features
-
-🚀 **From Scratch to Advanced**: Developed from the ground up with a focus on innovation and quality, Blockcraft is not just another blockchain toolkit. It's a comprehensive solution forged through careful design and development to ensure the highest standards of performance and reliability.
-
-🔧 **Modular and Flexible**: Emphasizing flexibility, Blockcraft features a modular design that allows developers to integrate and customize components seamlessly, fitting perfectly into various blockchain application scenarios.
-
-🔒 **Top-Notch Security**: With security at its core, Blockcraft incorporates advanced security protocols to ensure transaction and data integrity, setting a new benchmark for trust and reliability in the blockchain space.
-
-🌐 **Support for Decentralized Networks**: Designed to foster decentralized applications, Blockcraft comes with full support for creating and managing peer-to-peer networks, enabling direct and secure transactions and interactions.
-
-🛠 **All-In-One Toolkit**: From consensus algorithms to peer-to-peer services, Blockcraft provides a full array of tools needed to design, deploy, and manage innovative blockchain applications efficiently.
-
-## Getting Started 🛠️
-
-Dive into the world of blockchain development with Blockcraft by following these setup instructions:
-
-1. **Installation**
-
-```bash
-npm install github:chrisallenarmbruster/blockcraft
-```
-
-## Usage 🔍
-
-Blockcraft is designed to empower developers with the flexibility to build customizable and efficient blockchain systems. At the core of Blockcraft's design is the separation of concerns, allowing developers to mix and match different components for consensus mechanisms, incentive models, data handling, and storage. This section will guide you through using these features to set up a comprehensive blockchain solution.
-
-### The Blockchain Class 💾
-
-The `Blockchain` class is the heart ❤️ of your blockchain application, orchestrating the interaction between various components. It is initialized with several key parameters that define its behavior:
-
-- **Consensus Mechanism** 🤝: Determines how consensus is achieved on the blockchain. Blockcraft allows for the integration of various consensus mechanisms, enabling you to choose or develop one that best fits your application's requirements.
-
-- **Incentive Model** 🏅: Defines the strategy for rewarding network participants. This modular approach lets you implement a custom incentive model that motivates participation in your blockchain network.
-
-- **Data Handler** 📊: Manages the processing and storage of data within blocks. By customizing the data handler, you can tailor how data is treated, validated, and stored on your blockchain.
-
-- **Storage Handler** 🗃️: Controls how blockchain data is persisted. Whether you're using file systems, databases, or other storage solutions, the storage handler ensures your blockchain data is securely saved and retrievable.
-
-- **Configuration Object** ⚙️: A flexible configuration object allows you to fine-tune the settings and parameters of your blockchain, such as block size limits, transaction fees, and network protocols.
-
-```javascript
-const blockchain = new Blockchain({
-  consensusMechanism: new ProofOfWorkConsensus(),
-  incentiveModel: new StandardMiningReward(),
-  dataHandler: new CustomDataHandler(),
-  storageHandler: new FileStorageHandler(),
-  config: { blockchainName: "my-blockcraft-blockchain" },
-});
-```
-
-### The NetworkNode Class 🌍
-
-For blockchain networks to function, nodes must communicate and synchronize with each other 🤝. The `NetworkNode` class encapsulates the network layer, integrating:
-
-- **P2P Service** 🔄: Manages peer-to-peer communication between nodes, ensuring data is shared efficiently across the network without relying on a central server.
-- **Web Service** 🌐: Provides an HTTP interface for your blockchain, allowing external applications and users to interact with the blockchain via web requests.
-
-The `NetworkNode` class takes an instance of your `Blockchain` 💼, along with instances of the P2P service and Web service, fully encapsulating the networking functionality and allowing your blockchain to operate within a distributed network 🚀.
-
-```javascript
-const networkNode = new NetworkNode(
-  blockchain,
-  new P2PService(),
-  new WebService()
-);
-```
-
-### Example Included 📝
-
-To help you get started, a simple example (see [example.js](./example.js)) is included that demonstrates how to set up a basic blockchain and dApp nodes to host it using Blockcraft. This example showcases the creation of a blockchain with a Proof-of-Work consensus mechanism, a standard mining reward incentive model, and file-based data and storage handlers. The example also demonstrates how to set up a network node to host the blockchain, allowing it to communicate with other nodes in a decentralized network.
-
-### Flexibility and Customization 🔧
-
-The separation of concerns within Blockcraft not only ensures cleaner code and easier maintenance but also grants unparalleled flexibility 🤸‍♂️. Developers can swap out consensus mechanisms 🔁, experiment with different incentive models, customize data handling logic, and choose their preferred method of data storage 🗃 without altering the core blockchain logic. The same is true for creating dApp nodes for hosting blockchains, allowing peer-to-peer services 🌐 and web interfaces to be switched. This design philosophy encourages innovation and experimentation 🚀, enabling the creation of a blockchain that perfectly fits each developer's unique requirements.
-
-## Final Thoughts 🚀
-
-Blockcraft's modular architecture is designed with the developer in mind 🧠, offering the building blocks 🏗️ to create, customize, and scale blockchain applications. By understanding and utilizing the core components of Blockcraft—`Blockchain` and `NetworkNode` classes, along with their associated services and handlers ✨, Blockcraft equips developers to construct blockchain solutions that are tailored 🛠️ to each application's needs.
-
-```
-
-# IncentiveModel.js
-
-```javascript
-/**
- * IncentiveModel.js
- *
- * This file defines the IncentiveModel class, which serves as an abstract base class for different incentive models in a blockchain.
- *
- * This class or its subclasses are passed into the Blockchain class to define the incentive model for the blockchain.
- *
- * The IncentiveModel class is constructed with a configuration object and has methods for setting the blockchain instance, calculating the reward for a block, distributing the reward, and updating the configuration.
- *
- * The calculateReward and distributeReward methods are placeholders that should be overridden by subclasses to implement specific logic for calculating and distributing the reward for a block.
- *
- * The setBlockchain method is used to set the blockchain instance that the incentive model belongs to.
- *
- * The updateConfig method is used to update the configuration of the incentive model.
- *
- */
-
-class IncentiveModel {
-  constructor(config) {
-    this.config = config;
-    this.blockchain = null;
-  }
-
-  setBlockchain(blockchainInstance) {
-    this.blockchain = blockchainInstance;
-  }
-
-  calculateIncentive(block) {
-    // Placeholder for reward calculation logic
-    // This method can be overridden by subclasses to implement specific reward logic
-    throw new Error("calculateIncentive method must be implemented");
-  }
-
-  distributeIncentive(block, incentive) {
-    // Placeholder for reward distribution logic
-    // This method can be overridden by subclasses to implement specific distribution logic
-    throw new Error("distributeIncentive method must be implemented");
-  }
-
-  processIncentive(block) {
-    // Placeholder for processing incentive logic
-    // This method can be overridden by subclasses to implement specific processing logic
-    throw new Error("processIncentive method must be implemented");
-  }
-
-  updateConfig(newConfig) {
+  config(newConfig) {
     this.config = newConfig;
   }
 }
 
-export default IncentiveModel;
+export default NetworkNode;
 
 ```
 
@@ -982,65 +984,6 @@ async function blockchain(config) {
 console.clear();
 
 blockchain(config);
-
-```
-
-# NetworkNode.js
-
-```javascript
-/**
- * NetworkNode.js
- *
- * This file defines the NetworkNode class, a central component of the Blockcraft blockchain network.
- * The NetworkNode class integrates the blockchain logic with network functionalities, enabling node-to-node
- * communication and providing an HTTP API for external interaction.
- *
- * The class accepts instances of the Blockchain, P2PService, and WebService as parameters, facilitating
- * a modular and flexible architecture. Each of these components is responsible for a specific aspect of
- * the blockchain network operation, allowing for easy updates and maintenance.
- *
- * Usage:
- * const networkNode = new NetworkNode(blockchainInstance, p2pServiceInstance, webServiceInstance, config);
- *
- */
-
-class NetworkNode {
-  constructor(
-    blockchainInstance,
-    p2pServiceInstance,
-    webServiceInstance,
-    config = {}
-  ) {
-    this.blockchain = blockchainInstance;
-    this.p2pService = p2pServiceInstance;
-    this.webService = webServiceInstance;
-    this.config = config;
-
-    this.blockchain?.setNetworkNode(this);
-    this.p2pService?.setNetworkNode(this);
-    this.webService?.setNetworkNode(this);
-
-    if (this.blockchain && this.p2pService) {
-      this.blockchain.on("entryAdded", (entry) => {
-        this.p2pService.broadcastEntry(entry);
-      });
-
-      this.blockchain.on("blockCreated", (block) => {
-        this.p2pService.broadcastBlock(block);
-      });
-
-      this.blockchain.on("peerBlockAdded", (block) => {
-        console.log("Peer block added:", block);
-      });
-    }
-  }
-
-  config(newConfig) {
-    this.config = newConfig;
-  }
-}
-
-export default NetworkNode;
 
 ```
 
@@ -1310,181 +1253,140 @@ export default P2PService;
 
 ```
 
-# ProofOfWorkBlock.js
+# StandardMiningAward.js
 
 ```javascript
 /**
- * ProofOfWorkBlock.js
+ * StandardMiningReward.js
  *
- * This file defines the ProofOfWorkBlock class, which extends the Block class and adds proof-of-work functionality.
+ * This file defines the StandardMiningReward class, which extends the IncentiveModel class and implements a standard fixed reward for mining a block.
  *
- * This class is used by the ProofOfWorkConsensus class to create blocks with proof-of-work functionality.
+ * This class is passed into the Blockchain class to define an incentive model for the blockchain.
  *
- * Each ProofOfWorkBlock has an index, data, previousHash, timestamp, difficulty, nonce, and hash. The nonce is a number that is incremented in the process of mining the block.
+ * The StandardMiningReward class is constructed with a configuration object, which should contain a fixedReward property that specifies the reward for mining a block. If no fixedReward is specified, a default value of 50 is used.
  *
- * The ProofOfWorkBlock class overrides the computeHash method of the Block class to include the nonce in the hash computation.
+ * The calculateReward method is used to calculate the reward for a block, which is the fixed reward specified in the configuration.
  *
- * The mineBlock method is used to mine the block by incrementally increasing the nonce and recomputing the hash until a hash that meets the difficulty requirement is found. The difficulty requirement is that the first 'difficulty' number of characters of the hash must be zeros.
+ * The distributeReward method is used to distribute the reward to the miner of the block. In practice, this would involve creating a transaction. For demonstration purposes, this method just logs the distribution and does not actually update the blockchain state.
  *
  */
 
-import crypto from "crypto";
-import Block from "./Block.js";
-class ProofOfWorkBlock extends Block {
-  constructor({
-    index,
-    data,
-    previousHash,
-    timestamp,
-    blockCreator,
-    nonce = 0,
-    difficulty = 4,
-  }) {
-    super({ index, data, previousHash, timestamp, blockCreator });
-    this.nonce = nonce;
-    this.difficulty = difficulty;
-    this.hash = this.computeHash();
-    this.stopMining = false;
+import IncentiveModel from "./IncentiveModel.js";
+
+class StandardMiningReward extends IncentiveModel {
+  constructor(config) {
+    super(config);
+    // Assuming config contains a fixedReward property
+    this.fixedReward = config.fixedReward || 50;
   }
 
-  toSerializableObject() {
-    const baseObject = super.toSerializableObject();
+  calculateIncentive(block) {
+    return this.fixedReward;
+  }
+
+  distributeIncentive(block, incentive) {
+    // Distribute the reward to the miner (block creator)
+    // In practice, this would involve creating a transaction
+    // For demonstration, just logging the distribution
+    // Update the blockchain state to reflect this reward distribution
+    // This might involve updating the miner's balance or adding a transaction to the block
+    const miner = block.blockCreator; // Replace with logic to determine who mined the block
     return {
-      ...baseObject,
-      nonce: this.nonce,
-      difficulty: this.difficulty,
+      block,
+      incentive,
+      miner,
+      message: `Distributed ${incentive} to ${miner}.`,
     };
   }
 
-  computeHash() {
-    return crypto
-      .createHash("SHA256")
-      .update(
-        `${this.index}${this.previousHash}${this.timestamp}${
-          this.blockCreator
-        }${JSON.stringify(this.data)}${this.nonce}`
-      )
-      .digest("hex");
-  }
+  processIncentive(block) {
+    let result = {
+      success: false,
+      targetBlockIndex: null,
+      incentiveDetails: null,
+    };
 
-  async mineBlock() {
-    while (
-      !this.stopMining &&
-      this.hash.substring(0, this.difficulty) !==
-        Array(this.difficulty + 1).join("0")
-    ) {
-      this.nonce++;
-      this.hash = this.computeHash();
-      if (this.nonce % 1000 === 0) {
-        await new Promise((resolve) => setImmediate(resolve));
+    if (block.index >= 7) {
+      const targetBlockIndex = block.index - 6;
+      const targetBlock = this.blockchain.getBlockByIndex(targetBlockIndex);
+
+      if (targetBlock) {
+        const incentive = this.calculateIncentive(targetBlock);
+        this.distributeIncentive(targetBlock, incentive);
+
+        result.success = true;
+        result.blockIndex = targetBlockIndex;
+        result.incentiveDetails = {
+          blockCreator: targetBlock.blockCreator,
+          incentiveAmount: incentive,
+        };
       }
+    } else {
+      console.log("Blockchain not long enough to process incentives yet.");
     }
-    return !this.stopMining;
+
+    return result;
   }
 }
 
-export default ProofOfWorkBlock;
+export default StandardMiningReward;
 
 ```
 
-# ProofOfWorkConsensus.js
+# IncentiveModel.js
 
 ```javascript
 /**
- * ProofOfWorkConsensus.js
+ * IncentiveModel.js
  *
- * This file defines the ProofOfWorkConsensus class, which extends the ConsensusMechanism class and implements a proof-of-work consensus mechanism.
+ * This file defines the IncentiveModel class, which serves as an abstract base class for different incentive models in a blockchain.
  *
- * This class is passed into the Blockchain class to define a consensus mechanism for the blockchain.
+ * This class or its subclasses are passed into the Blockchain class to define the incentive model for the blockchain.
  *
- * The ProofOfWorkConsensus class is constructed with a configuration object and has a difficulty level, which determines how hard it is to mine a block.
+ * The IncentiveModel class is constructed with a configuration object and has methods for setting the blockchain instance, calculating the reward for a block, distributing the reward, and updating the configuration.
  *
- * The createGenesisBlock method is used to create the genesis block, which is the first block in the blockchain. It creates a new ProofOfWorkBlock with the index of 0, the data of "Genesis Block", the previousHash of "0", and the difficulty level of this consensus mechanism.
+ * The calculateReward and distributeReward methods are placeholders that should be overridden by subclasses to implement specific logic for calculating and distributing the reward for a block.
  *
- * The createBlock method is used to create a new block with a given index, data, and previousHash. It creates a new ProofOfWorkBlock with the given parameters and the difficulty level of this consensus mechanism, mines the block, and then returns it.
+ * The setBlockchain method is used to set the blockchain instance that the incentive model belongs to.
  *
- * @author Your Name
- * @version 1.0
- * @since 2022-01-01
+ * The updateConfig method is used to update the configuration of the incentive model.
+ *
  */
 
-import ConsensusMechanism from "./ConsensusMechanism.js";
-import ProofOfWorkBlock from "./ProofOfWorkBlock.js";
-
-class ProofOfWorkConsensus extends ConsensusMechanism {
+class IncentiveModel {
   constructor(config) {
-    super(config);
-    this.difficulty = config.difficulty || 4;
-    this.currentMiningBlock = null;
+    this.config = config;
+    this.blockchain = null;
   }
 
   setBlockchain(blockchainInstance) {
     this.blockchain = blockchainInstance;
-    this.blockchain.on("peerBlockAdded", () => {
-      console.log("Stopping mining due to new peer block acceptance.");
-      if (this.currentMiningBlock) {
-        this.currentMiningBlock.stopMining = true;
-      }
-    });
-    this.blockchain.on("newPeerChainAccepted", () => {
-      console.log("Stopping mining due to new peer chain acceptance.");
-      if (this.currentMiningBlock) {
-        this.currentMiningBlock.stopMining = true;
-      }
-    });
   }
 
-  async createBlock(index, data, previousHash) {
-    console.log(
-      "Creating new block...",
-      index,
-      data,
-      previousHash,
-      this.blockchain.networkNode.config
-    );
-    const newBlock = new ProofOfWorkBlock({
-      index,
-      data,
-      previousHash,
-      blockCreator: this.blockchain.networkNode.p2pService.config.id,
-      difficulty: this.difficulty,
-    });
-    newBlock.setBlockchain(this.blockchain);
-
-    this.currentMiningBlock = newBlock;
-
-    const minedSuccessfully = await newBlock.mineBlock();
-
-    this.currentMiningBlock = null;
-
-    if (!minedSuccessfully) {
-      return null;
-    }
-
-    return newBlock;
+  calculateIncentive(block) {
+    // Placeholder for reward calculation logic
+    // This method can be overridden by subclasses to implement specific reward logic
+    throw new Error("calculateIncentive method must be implemented");
   }
 
-  createGenesisBlock() {
-    return new ProofOfWorkBlock({
-      index: 0,
-      data: "Genesis Block",
-      previousHash: "0",
-      blockCreator: this.blockchain.networkNode.p2pService.config.id,
-      difficulty: this.difficulty,
-    });
+  distributeIncentive(block, incentive) {
+    // Placeholder for reward distribution logic
+    // This method can be overridden by subclasses to implement specific distribution logic
+    throw new Error("distributeIncentive method must be implemented");
   }
 
-  validateBlockHash(block) {
-    const hash = new ProofOfWorkBlock(block).hash;
-    return hash === block.hash;
+  processIncentive(block) {
+    // Placeholder for processing incentive logic
+    // This method can be overridden by subclasses to implement specific processing logic
+    throw new Error("processIncentive method must be implemented");
   }
 
-  async validateBlockConsensus(block) {
-    return this.validateBlockHash(block);
+  updateConfig(newConfig) {
+    this.config = newConfig;
   }
 }
 
-export default ProofOfWorkConsensus;
+export default IncentiveModel;
 
 ```
 
@@ -1599,137 +1501,80 @@ export default StorageHandler;
 
 ```
 
-# StandardMiningAward.js
+# ProofOfWorkBlock.js
 
 ```javascript
 /**
- * StandardMiningReward.js
+ * ProofOfWorkBlock.js
  *
- * This file defines the StandardMiningReward class, which extends the IncentiveModel class and implements a standard fixed reward for mining a block.
+ * This file defines the ProofOfWorkBlock class, which extends the Block class and adds proof-of-work functionality.
  *
- * This class is passed into the Blockchain class to define an incentive model for the blockchain.
+ * This class is used by the ProofOfWorkConsensus class to create blocks with proof-of-work functionality.
  *
- * The StandardMiningReward class is constructed with a configuration object, which should contain a fixedReward property that specifies the reward for mining a block. If no fixedReward is specified, a default value of 50 is used.
+ * Each ProofOfWorkBlock has an index, data, previousHash, timestamp, difficulty, nonce, and hash. The nonce is a number that is incremented in the process of mining the block.
  *
- * The calculateReward method is used to calculate the reward for a block, which is the fixed reward specified in the configuration.
+ * The ProofOfWorkBlock class overrides the computeHash method of the Block class to include the nonce in the hash computation.
  *
- * The distributeReward method is used to distribute the reward to the miner of the block. In practice, this would involve creating a transaction. For demonstration purposes, this method just logs the distribution and does not actually update the blockchain state.
+ * The mineBlock method is used to mine the block by incrementally increasing the nonce and recomputing the hash until a hash that meets the difficulty requirement is found. The difficulty requirement is that the first 'difficulty' number of characters of the hash must be zeros.
  *
  */
 
-import IncentiveModel from "./IncentiveModel.js";
-
-class StandardMiningReward extends IncentiveModel {
-  constructor(config) {
-    super(config);
-    // Assuming config contains a fixedReward property
-    this.fixedReward = config.fixedReward || 50;
+import crypto from "crypto";
+import Block from "./Block.js";
+class ProofOfWorkBlock extends Block {
+  constructor({
+    index,
+    data,
+    previousHash,
+    timestamp,
+    blockCreator,
+    nonce = 0,
+    difficulty = 4,
+  }) {
+    super({ index, data, previousHash, timestamp, blockCreator });
+    this.nonce = nonce;
+    this.difficulty = difficulty;
+    this.hash = this.computeHash();
+    this.stopMining = false;
   }
 
-  calculateIncentive(block) {
-    return this.fixedReward;
-  }
-
-  distributeIncentive(block, incentive) {
-    // Distribute the reward to the miner (block creator)
-    // In practice, this would involve creating a transaction
-    // For demonstration, just logging the distribution
-    // Update the blockchain state to reflect this reward distribution
-    // This might involve updating the miner's balance or adding a transaction to the block
-    const miner = block.blockCreator; // Replace with logic to determine who mined the block
+  toSerializableObject() {
+    const baseObject = super.toSerializableObject();
     return {
-      block,
-      incentive,
-      miner,
-      message: `Distributed ${incentive} to ${miner}.`,
+      ...baseObject,
+      nonce: this.nonce,
+      difficulty: this.difficulty,
     };
   }
 
-  processIncentive(block) {
-    let result = {
-      success: false,
-      targetBlockIndex: null,
-      incentiveDetails: null,
-    };
+  computeHash() {
+    return crypto
+      .createHash("SHA256")
+      .update(
+        `${this.index}${this.previousHash}${this.timestamp}${
+          this.blockCreator
+        }${JSON.stringify(this.data)}${this.nonce}`
+      )
+      .digest("hex");
+  }
 
-    if (block.index >= 7) {
-      const targetBlockIndex = block.index - 6;
-      const targetBlock = this.blockchain.getBlockByIndex(targetBlockIndex);
-
-      if (targetBlock) {
-        const incentive = this.calculateIncentive(targetBlock);
-        this.distributeIncentive(targetBlock, incentive);
-
-        result.success = true;
-        result.blockIndex = targetBlockIndex;
-        result.incentiveDetails = {
-          blockCreator: targetBlock.blockCreator,
-          incentiveAmount: incentive,
-        };
+  async mineBlock() {
+    while (
+      !this.stopMining &&
+      this.hash.substring(0, this.difficulty) !==
+        Array(this.difficulty + 1).join("0")
+    ) {
+      this.nonce++;
+      this.hash = this.computeHash();
+      if (this.nonce % 1000 === 0) {
+        await new Promise((resolve) => setImmediate(resolve));
       }
-    } else {
-      console.log("Blockchain not long enough to process incentives yet.");
     }
-
-    return result;
+    return !this.stopMining;
   }
 }
 
-export default StandardMiningReward;
-
-```
-
-# testP2P1.js
-
-```javascript
-import P2PService from "./P2PService.js";
-
-function createP2PNode(config) {
-  console.clear();
-
-  const p2pService = new P2PService({
-    port: config.port,
-    autoStart: config.autoStart,
-    id: config.id,
-    seedPeers: config.seedPeers,
-  });
-
-  setTimeout(() => {
-    p2pService.broadcast({
-      type: "message",
-      data: `${config.messageData} from port ${config.port}`,
-      senderId: config.id,
-      messageId: Date.now(),
-    });
-  }, config.testMessageDelay);
-}
-
-let config = {};
-
-for (let i = 2; i < process.argv.length; i += 2) {
-  let key = process.argv[i];
-  let value = process.argv[i + 1];
-  if (key.startsWith("-")) {
-    config[key.substring(1)] = value;
-  }
-}
-
-"true" === config.autoStart
-  ? (config.autoStart = true)
-  : (config.autoStart = false);
-
-config.port = parseInt(config.port);
-config.seedPeers = JSON.parse(config.seedPeers);
-config.testMessageDelay = parseInt(config.testMessageDelay);
-
-createP2PNode(config);
-
-// Run this file with the following command:
-//   node testP2P1.js -id node1 -port 6001 -autoStart true -seedPeers '["ws://localhost:6002"]' -messageData "Hello!" -testMessageDelay 7000
-// AND in another terminal run:
-//   node testP2P1.js -id node2 -port 6002 -autoStart true -seedPeers '["ws://localhost:6001"]' -messageData "Hello!" -testMessageDelay 9000
-// AND and in another terminal run:
-//   node testP2P1.js -id node3 -port 6003 -autoStart true -seedPeers '["ws://localhost:6002"]' -messageData "Hello!" -testMessageDelay 11000
+export default ProofOfWorkBlock;
 
 ```
 
@@ -1836,6 +1681,62 @@ class WebService {
     router.get("/chain/integrity", (req, res) => {
       const validationResult = this.networkNode.blockchain.validateChain();
       res.json(validationResult);
+    });
+
+    router.get("/blocks", (req, res) => {
+      const { limit = 10, sort = "desc" } = req.query;
+      let { startWithIndex } = req.query;
+
+      if (sort === "asc" && startWithIndex === undefined) {
+        startWithIndex = "0";
+      } else if (startWithIndex === undefined) {
+        startWithIndex = this.networkNode.blockchain
+          .getLatestBlock()
+          .index.toString();
+      }
+
+      const limitNum = Math.min(Math.max(parseInt(limit, 10), 1), 100);
+      const startWithIndexNum = parseInt(startWithIndex, 10);
+
+      let filteredChain = this.networkNode.blockchain
+        .chainToSerializableObject()
+        .filter((block) => {
+          return sort === "asc"
+            ? block.index >= startWithIndexNum
+            : block.index <= startWithIndexNum;
+        });
+
+      filteredChain =
+        sort === "asc"
+          ? filteredChain.sort((a, b) => a.index - b.index)
+          : filteredChain.sort((a, b) => b.index - a.index);
+
+      const blocks = filteredChain.slice(0, limitNum);
+
+      let lastIndexInResponse =
+        blocks.length > 0 ? blocks[blocks.length - 1].index : null;
+
+      const nextIndexReference =
+        blocks.length > 0
+          ? sort === "asc"
+            ? blocks[blocks.length - 1].index
+            : blocks[0].index
+          : startWithIndexNum;
+
+      const meta = {
+        requestedLimit: limitNum,
+        returnedBlocks: blocks.length,
+        lastIndexInResponse,
+        nextIndexReference:
+          sort === "asc"
+            ? nextIndexReference + 1
+            : nextIndexReference - limitNum < 0
+            ? null
+            : nextIndexReference - limitNum,
+        sort,
+      };
+
+      res.json({ blocks, meta });
     });
 
     router.get("/block/:index", (req, res) => {
@@ -2051,6 +1952,161 @@ blockchain(config);
 // node test.js -p2pPort 6001 -p2pAutoStart true -p2pNodeId node1 -webPort 3000 -seedPeers '["ws://localhost:6002","ws://localhost:6003"]' -difficulty 6 -reward 100 -minEntriesPerBlock 3 -storagePath "blockchain.txt"
 // node test.js -p2pPort 6002 -p2pAutoStart true -p2pNodeId node2 -webPort 3001 -seedPeers '["ws://localhost:6001","ws://localhost:6003"]' -difficulty 6 -reward 100 -minEntriesPerBlock 3 -storagePath "blockchain2.txt"
 // node test.js -p2pPort 6003 -p2pAutoStart true -p2pNodeId node3 -webPort 3002 -seedPeers '["ws://localhost:6001","ws://localhost:6002"]' -difficulty 6 -reward 100 -minEntriesPerBlock 3 -storagePath "blockchain3.txt"
+
+```
+
+# testP2P1.js
+
+```javascript
+import P2PService from "./P2PService.js";
+
+function createP2PNode(config) {
+  console.clear();
+
+  const p2pService = new P2PService({
+    port: config.port,
+    autoStart: config.autoStart,
+    id: config.id,
+    seedPeers: config.seedPeers,
+  });
+
+  setTimeout(() => {
+    p2pService.broadcast({
+      type: "message",
+      data: `${config.messageData} from port ${config.port}`,
+      senderId: config.id,
+      messageId: Date.now(),
+    });
+  }, config.testMessageDelay);
+}
+
+let config = {};
+
+for (let i = 2; i < process.argv.length; i += 2) {
+  let key = process.argv[i];
+  let value = process.argv[i + 1];
+  if (key.startsWith("-")) {
+    config[key.substring(1)] = value;
+  }
+}
+
+"true" === config.autoStart
+  ? (config.autoStart = true)
+  : (config.autoStart = false);
+
+config.port = parseInt(config.port);
+config.seedPeers = JSON.parse(config.seedPeers);
+config.testMessageDelay = parseInt(config.testMessageDelay);
+
+createP2PNode(config);
+
+// Run this file with the following command:
+//   node testP2P1.js -id node1 -port 6001 -autoStart true -seedPeers '["ws://localhost:6002"]' -messageData "Hello!" -testMessageDelay 7000
+// AND in another terminal run:
+//   node testP2P1.js -id node2 -port 6002 -autoStart true -seedPeers '["ws://localhost:6001"]' -messageData "Hello!" -testMessageDelay 9000
+// AND and in another terminal run:
+//   node testP2P1.js -id node3 -port 6003 -autoStart true -seedPeers '["ws://localhost:6002"]' -messageData "Hello!" -testMessageDelay 11000
+
+```
+
+# ProofOfWorkConsensus.js
+
+```javascript
+/**
+ * ProofOfWorkConsensus.js
+ *
+ * This file defines the ProofOfWorkConsensus class, which extends the ConsensusMechanism class and implements a proof-of-work consensus mechanism.
+ *
+ * This class is passed into the Blockchain class to define a consensus mechanism for the blockchain.
+ *
+ * The ProofOfWorkConsensus class is constructed with a configuration object and has a difficulty level, which determines how hard it is to mine a block.
+ *
+ * The createGenesisBlock method is used to create the genesis block, which is the first block in the blockchain. It creates a new ProofOfWorkBlock with the index of 0, the data of "Genesis Block", the previousHash of "0", and the difficulty level of this consensus mechanism.
+ *
+ * The createBlock method is used to create a new block with a given index, data, and previousHash. It creates a new ProofOfWorkBlock with the given parameters and the difficulty level of this consensus mechanism, mines the block, and then returns it.
+ *
+ * @author Your Name
+ * @version 1.0
+ * @since 2022-01-01
+ */
+
+import ConsensusMechanism from "./ConsensusMechanism.js";
+import ProofOfWorkBlock from "./ProofOfWorkBlock.js";
+
+class ProofOfWorkConsensus extends ConsensusMechanism {
+  constructor(config) {
+    super(config);
+    this.difficulty = config.difficulty || 4;
+    this.currentMiningBlock = null;
+  }
+
+  setBlockchain(blockchainInstance) {
+    this.blockchain = blockchainInstance;
+    this.blockchain.on("peerBlockAdded", () => {
+      console.log("Stopping mining due to new peer block acceptance.");
+      if (this.currentMiningBlock) {
+        this.currentMiningBlock.stopMining = true;
+      }
+    });
+    this.blockchain.on("newPeerChainAccepted", () => {
+      console.log("Stopping mining due to new peer chain acceptance.");
+      if (this.currentMiningBlock) {
+        this.currentMiningBlock.stopMining = true;
+      }
+    });
+  }
+
+  async createBlock(index, data, previousHash) {
+    console.log(
+      "Creating new block...",
+      index,
+      data,
+      previousHash,
+      this.blockchain.networkNode.config
+    );
+    const newBlock = new ProofOfWorkBlock({
+      index,
+      data,
+      previousHash,
+      blockCreator: this.blockchain.networkNode.p2pService.config.id,
+      difficulty: this.difficulty,
+    });
+    newBlock.setBlockchain(this.blockchain);
+
+    this.currentMiningBlock = newBlock;
+
+    const minedSuccessfully = await newBlock.mineBlock();
+
+    this.currentMiningBlock = null;
+
+    if (!minedSuccessfully) {
+      return null;
+    }
+
+    return newBlock;
+  }
+
+  createGenesisBlock() {
+    return new ProofOfWorkBlock({
+      index: 0,
+      data: "Genesis Block",
+      previousHash: "0",
+      blockCreator: this.blockchain.networkNode.p2pService.config.id,
+      difficulty: this.difficulty,
+    });
+  }
+
+  validateBlockHash(block) {
+    const hash = new ProofOfWorkBlock(block).hash;
+    return hash === block.hash;
+  }
+
+  async validateBlockConsensus(block) {
+    return this.validateBlockHash(block);
+  }
+}
+
+export default ProofOfWorkConsensus;
 
 ```
 

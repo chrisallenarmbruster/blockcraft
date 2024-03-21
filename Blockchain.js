@@ -260,6 +260,12 @@ class Blockchain extends EventEmitter {
     return this.chain[this.chain.length - 1];
   }
 
+  getLatestBlocks(numOfBlocks = 30) {
+    const blocksToReturn = Math.min(numOfBlocks, this.chain.length, 100);
+    const startIndex = Math.max(this.chain.length - blocksToReturn, 0);
+    return this.chain.slice(startIndex);
+  }
+
   getBlockByIndex(index) {
     return this.chain[index];
   }
