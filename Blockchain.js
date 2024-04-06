@@ -263,7 +263,7 @@ class Blockchain extends EventEmitter {
   getLatestBlocks(numOfBlocks = 30) {
     const blocksToReturn = Math.min(numOfBlocks, this.chain.length, 100);
     const startIndex = Math.max(this.chain.length - blocksToReturn, 0);
-    return this.chain.slice(startIndex);
+    return this.chainToSerializableObject().slice(startIndex).reverse();
   }
 
   getBlockByIndex(index) {

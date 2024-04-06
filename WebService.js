@@ -100,14 +100,14 @@ class WebService {
       res.json(validationResult);
     });
 
-    this.app.get("/blocks/latest", (req, res) => {
+    router.get("/blocks/latest", (req, res) => {
       const { count = 30 } = req.query;
       const numOfBlocks = Math.min(Number(count), 100);
-
       try {
-        const blocks = this.blockchain.getLatestBlocks(numOfBlocks);
+        const blocks = this.networkNode.blockchain.getLatestBlocks(numOfBlocks);
         res.json(blocks);
       } catch (error) {
+        console.error("Failed to fetch the latest blocks:", error);
         res.status(500).json({ error: "Failed to fetch the latest blocks" });
       }
     });
