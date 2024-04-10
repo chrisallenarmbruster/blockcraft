@@ -169,6 +169,7 @@ class WebService {
     });
 
     router.get("/block/:index", (req, res) => {
+      console.log(`API Call on Index ${req.params.index}`);
       const index = parseInt(req.params.index);
       if (isNaN(index)) {
         return res.status(400).send("Invalid index");

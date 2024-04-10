@@ -267,7 +267,7 @@ class Blockchain extends EventEmitter {
   }
 
   getBlockByIndex(index) {
-    return this.chain[index];
+    return this.chainToSerializableObject()[index];
   }
 
   async replaceChain(newChain) {
