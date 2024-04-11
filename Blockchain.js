@@ -266,6 +266,14 @@ class Blockchain extends EventEmitter {
     return this.chainToSerializableObject().slice(startIndex).reverse();
   }
 
+  getBlocksRange(radius = 15, centerOnIndex = this.chain.length - 1) {
+    centerOnIndex = Math.max(0, Math.min(centerOnIndex, this.chain.length - 1));
+    let startIndex = Math.max(centerOnIndex - radius, 0);
+    let endIndex = Math.min(centerOnIndex + radius + 1, this.chain.length);
+
+    return this.chainToSerializableObject().slice(startIndex, endIndex);
+  }
+
   getBlockByIndex(index) {
     return this.chainToSerializableObject()[index];
   }

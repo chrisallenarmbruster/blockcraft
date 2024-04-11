@@ -112,6 +112,24 @@ class WebService {
       }
     });
 
+    router.get("/blocks/range", (req, res) => {
+      const radius = parseInt(req.query.radius, 10) || 15;
+      const centerOnIndex = req.query.centerOnIndex
+        ? parseInt(req.query.centerOnIndex, 10)
+        : undefined;
+
+      try {
+        const blocksRange = this.networkNode.blockchain.getBlocksRange(
+          radius,
+          centerOnIndex
+        );
+        res.json(blocksRange);
+      } catch (error) {
+        console.error("Failed to get blocks range:", error);
+        res.status(500).send("Internal Server Error");
+      }
+    });
+
     router.get("/blocks", (req, res) => {
       const { limit = 10, sort = "desc" } = req.query;
       let { startWithIndex } = req.query;
