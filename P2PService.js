@@ -41,7 +41,10 @@ class P2PService {
 
   initWebsocketServer(port = this.config.port) {
     this.websocketServer = new WebSocketServer({ port });
-    this.websocketServer.on("connection", (ws) => {
+    this.websocketServer.on("connection", (ws, req) => {
+      const ip = req.headers["x-forwarded-for"] || req.socket.remoteAddress;
+      const url = req.url;
+      console.log(`New connection from ${ip} at ${url}`);
       ws.on("message", (message) => this.handleMessage(ws, message));
     });
     console.log(`P2PService WebSocket server started on port ${port}`);
@@ -57,11 +60,14 @@ class P2PService {
   }
 
   handleHandshake(ws, msg) {
-    if (!this.peers.has(msg.senderId)) {
-      console.log("Adding to my connected peers list:", msg.senderId);
+    if (!this.peers.has(msg.senderConfig?.senderId)) {
+      console.log(
+        "Adding to my connected peers list:",
+        msg.senderConfig?.senderId
+      );
       this.sendHandshake(ws);
     }
-    this.connectPeer(ws, msg.senderId);
+    this.connectPeer(ws, msg.senderConfig);
   }
 
   handleNonHandshakeMessage(msg) {
@@ -84,7 +90,7 @@ class P2PService {
           this.broadcast(msg);
           break;
         case "requestFullChain":
-          this.sendFullChain(msg.senderId);
+          this.sendFullChain(msg.senderConfig.senderId);
           break;
         case "fullChain":
           this.handleFullChain(msg);
@@ -97,7 +103,7 @@ class P2PService {
               const latestBlock = this.networkNode.blockchain.getLatestBlock();
               if (receivedBlock.index > latestBlock.index + 1) {
                 console.log("Longer chain detected.");
-                this.requestFullChain(msg.senderId);
+                this.requestFullChain(msg.senderConfig.senderId);
                 this.broadcast(msg);
               } else {
                 const isValidBlock =
@@ -129,24 +135,31 @@ class P2PService {
   sendHandshake(ws) {
     const handshakeMessage = {
       type: "handshake",
-      senderId: this.config.id,
+      senderConfig: {
+        senderId: this.config?.id,
+        senderLabel: this.config?.label,
+        senderIp: this.config?.ip,
+        senderUrl: this.config?.url,
+        senderP2PPort: this.config?.port,
+        webServicePort: this.networkNode?.webService?.config?.port,
+      },
       messageId: nanoid(),
     };
     ws.send(JSON.stringify(handshakeMessage));
   }
 
-  connectPeer(ws, id) {
-    if (!this.peers.has(id)) {
-      this.peers.set(id, ws);
+  connectPeer(ws, senderConfig) {
+    if (!this.peers.has(senderConfig.senderId)) {
+      this.peers.set(senderConfig.senderId, { ws: ws, config: senderConfig });
       console.log(
-        `Connected to a new peer with ID ${id}. Total peers: ${this.peers.size}`
+        `Connected to a new peer with ID ${senderConfig.senderId}. Total peers: ${this.peers.size}`
       );
     } else {
-      this.peers.set(id, ws);
+      this.peers.set(senderConfig.senderId, { ws: ws, config: senderConfig });
     }
     ws.on("close", () => {
-      console.log(`Peer ${id} disconnected.`);
-      this.peers.delete(id);
+      console.log(`Peer ${senderConfig.senderId} disconnected.`);
+      this.peers.delete(senderConfig.senderId);
     });
   }
 
@@ -178,7 +191,7 @@ class P2PService {
     const message = JSON.stringify({
       type: "newEntry",
       data: entry,
-      senderId: this.config.id,
+      senderConfig: { senderId: this.config.id },
       messageId: nanoid(),
     });
     this.broadcast(message);
@@ -188,7 +201,7 @@ class P2PService {
     const message = JSON.stringify({
       type: "newBlock",
       data: block.toSerializableObject(),
-      senderId: this.config.id,
+      senderConfig: { senderId: this.config.id },
       messageId: nanoid(),
     });
     this.broadcast(message);
@@ -196,8 +209,8 @@ class P2PService {
 
   broadcast(msg) {
     this.peers.forEach((peer, id) => {
-      if (id !== msg.senderId) {
-        peer.send(JSON.stringify(msg));
+      if (id !== msg.senderConfig?.senderId) {
+        peer.ws.send(JSON.stringify(msg));
       }
     });
   }
@@ -213,12 +226,12 @@ class P2PService {
   requestFullChain(senderId) {
     const request = {
       type: "requestFullChain",
-      senderId: this.config.id,
+      senderConfig: { senderId: this.config.id },
       messageId: nanoid(),
     };
     if (this.peers.has(senderId)) {
       const peer = this.peers.get(senderId);
-      peer.send(JSON.stringify(request));
+      peer.ws.send(JSON.stringify(request));
     } else {
       console.log(`Peer with ID ${senderId} not found.`);
     }
@@ -229,11 +242,11 @@ class P2PService {
       const fullChain = {
         type: "fullChain",
         data: this.networkNode.blockchain.chainToSerializableObject(),
-        senderId: this.config.id,
+        senderConfig: { senderId: this.config.id },
         messageId: nanoid(),
       };
       const peer = this.peers.get(receiverId);
-      peer.send(JSON.stringify(fullChain));
+      peer.ws.send(JSON.stringify(fullChain));
     } else {
       console.log(`Peer with ID ${receiverId} not found.`);
     }

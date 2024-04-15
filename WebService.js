@@ -247,6 +247,30 @@ class WebService {
       }
     });
 
+    router.get("/nodes", (req, res) => {
+      if (this.networkNode && this.networkNode.p2pService) {
+        console.log("Peers:", [...this.networkNode.p2pService.peers.values()]);
+
+        const thisNode = {
+          senderId: this.networkNode.p2pService.config?.id,
+          senderLabel: this.networkNode.p2pService.config?.label,
+          senderIp: this.networkNode.p2pService.config?.ip,
+          senderUrl: this.networkNode.p2pService.config?.url,
+          senderP2PPort: this.networkNode.p2pService.config?.port,
+          webServicePort: this.networkNode.webService?.config?.port,
+        };
+
+        res.json([
+          thisNode,
+          ...Array.from(this.networkNode.p2pService.peers.values()).map(
+            (value) => value.config
+          ),
+        ]);
+      } else {
+        res.status(500).send("P2P service is unavailable");
+      }
+    });
+
     this.app.use("/api", router);
   }
 
