@@ -210,40 +210,64 @@ class WebService {
       res.json(latestBlock);
     });
 
-    router.post("/add-entry", (req, res) => {
-      if (!req.body || Object.keys(req.body).length === 0) {
-        return res.status(400).send("No data provided");
-      }
-
+    router.get("/entries", (req, res) => {
       try {
-        this.networkNode.blockchain.addEntry(req.body);
-        res.status(201).send("Entry added successfully");
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 30;
+        const sort = req.query.sort || "asc";
+        const blockchain = this.networkNode.blockchain;
+        let allEntries = blockchain.chain.flatMap((block) =>
+          Array.isArray(block.data)
+            ? block.data.map((entry) => ({ ...entry, blockIndex: block.index }))
+            : [{ data: block.data, blockIndex: block.index }]
+        );
+        if (sort === "desc") {
+          allEntries = allEntries.sort((a, b) => b.blockIndex - a.blockIndex);
+        } else {
+          allEntries = allEntries.sort((a, b) => a.blockIndex - b.blockIndex);
+        }
+        const startIndex = (page - 1) * limit;
+        const endIndex = page * limit;
+        const entries = allEntries.slice(startIndex, endIndex);
+        res.json(entries);
       } catch (error) {
-        res.status(500).send("Error adding entry: " + error.message);
+        res.status(500).send("Failed to retrieve entries: " + error.message);
       }
     });
 
-    router.get("/unchained-entries", (req, res) => {
+    router.get("/entries/latest", (req, res) => {
       try {
-        const unchainedEntries =
+        const blockchain = this.networkNode.blockchain;
+        const latestBlocks = blockchain.chain.slice(-10);
+        let latestEntries = latestBlocks.flatMap((block) =>
+          Array.isArray(block.data)
+            ? block.data.map((entry) => ({ ...entry, blockIndex: block.index }))
+            : [{ data: block.data, blockIndex: block.index }]
+        );
+        if (latestEntries.length > 30) {
+          latestEntries = latestEntries.slice(-30);
+        }
+        res.json(latestEntries.reverse());
+      } catch (error) {
+        res
+          .status(500)
+          .send("Failed to retrieve latest entries: " + error.message);
+      }
+    });
+
+    router.get("/entries/pending", (req, res) => {
+      try {
+        let pendingEntries =
           this.networkNode.blockchain.dataHandler.getPendingEntries();
-        res.json(unchainedEntries);
+        pendingEntries = pendingEntries.map((entry) => ({
+          ...entry,
+          blockIndex: "pending",
+        }));
+        res.json(pendingEntries.reverse());
       } catch (error) {
         res
           .status(500)
           .send("Failed to retrieve unchained entries: " + error.message);
-      }
-    });
-
-    router.get("/chained-entries", (req, res) => {
-      try {
-        const blockchain = this.networkNode.blockchain;
-        const allEntries = blockchain.chain.flatMap((block) => block.data);
-        res.json(allEntries);
-      } catch (error) {
-        res
-          .status(500)
-          .send("Failed to retrieve chained entries: " + error.message);
       }
     });
 
