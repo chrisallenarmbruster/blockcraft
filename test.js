@@ -48,10 +48,15 @@ async function blockchain(config) {
     new P2PService({
       port: config.p2pPort,
       autoStart: config.p2pAutoStart,
-      id: config.p2pNodeId,
       seedPeers: config.seedPeers,
     }),
-    new WebService({ port: config.webPort || 3000 })
+    new WebService({ port: config.webPort || 3000 }),
+    {
+      id: config.nodeId,
+      label: config.nodeLabel,
+      ip: config.nodeIp,
+      url: config.nodeUrl,
+    }
   );
 
   node.blockchain.on("blockchainLoaded", (chain) => {
@@ -96,10 +101,10 @@ async function blockchain(config) {
       clearInterval(intervalId);
     } else {
       console.log(
-        `\nAdding \"${config.p2pNodeId.toUpperCase()}-Entry ${entryCount}\" to queue.`
+        `\nAdding \"${config.nodeId.toUpperCase()}-Entry ${entryCount}\" to queue.`
       );
       node.blockchain.addEntry({
-        data: `${config.p2pNodeId.toUpperCase()}-Entry ${entryCount}`,
+        data: `${config.nodeId.toUpperCase()}-Entry ${entryCount}`,
       });
       entryCount++;
     }
@@ -113,9 +118,9 @@ console.clear();
 blockchain(config);
 
 // Run this file with the following command:
-//   node test.js -p2pPort 6001 -p2pAutoStart true -p2pNodeId node1 -webPort 3000 -seedPeers '["ws://localhost:6002"]' -difficulty 6 -reward 100 -minEntriesPerBlock 3 -storagePath blockchain.txt
+//  node test.js -nodeId node1 -nodeLabel "Node 1" -nodeIp 127.0.0.1 -nodeUrl localhost -p2pPort 6001 -p2pAutoStart true -seedPeers '["ws://localhost:6002","ws://localhost:6003"]' -webPort 3000 -difficulty 5 -reward 100 -minEntriesPerBlock 3 -storagePath "blockchain.txt"
 //
 // try the following in separate terminals:
-// node test.js -p2pPort 6001 -p2pAutoStart true -p2pNodeId node1 -webPort 3000 -seedPeers '["ws://localhost:6002","ws://localhost:6003"]' -difficulty 6 -reward 100 -minEntriesPerBlock 3 -storagePath "blockchain.txt"
-// node test.js -p2pPort 6002 -p2pAutoStart true -p2pNodeId node2 -webPort 3001 -seedPeers '["ws://localhost:6001","ws://localhost:6003"]' -difficulty 6 -reward 100 -minEntriesPerBlock 3 -storagePath "blockchain2.txt"
-// node test.js -p2pPort 6003 -p2pAutoStart true -p2pNodeId node3 -webPort 3002 -seedPeers '["ws://localhost:6001","ws://localhost:6002"]' -difficulty 6 -reward 100 -minEntriesPerBlock 3 -storagePath "blockchain3.txt"
+//  node test.js -nodeId node1 -nodeLabel "Node 1" -nodeIp 127.0.0.1 -nodeUrl localhost -p2pPort 6001 -p2pAutoStart true -seedPeers '["ws://localhost:6002","ws://localhost:6003"]' -webPort 3000 -difficulty 5 -reward 100 -minEntriesPerBlock 3 -storagePath "blockchain.txt"
+//  node test.js -nodeId node2 -nodeLabel "Node 2" -nodeIp 127.0.0.1 -nodeUrl localhost -p2pPort 6002 -p2pAutoStart true -seedPeers '["ws://localhost:6001","ws://localhost:6003"]' -webPort 3001 -difficulty 5 -reward 100 -minEntriesPerBlock 3 -storagePath "blockchain2.txt"
+//  node test.js -nodeId node3 -nodeLabel "Node 3" -nodeIp 127.0.0.1 -nodeUrl localhost -p2pPort 6003 -p2pAutoStart true -seedPeers '["ws://localhost:6001","ws://localhost:6002"]' -webPort 3002 -difficulty 5 -reward 100 -minEntriesPerBlock 3 -storagePath "blockchain3.txt"

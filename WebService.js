@@ -252,11 +252,11 @@ class WebService {
         console.log("Peers:", [...this.networkNode.p2pService.peers.values()]);
 
         const thisNode = {
-          senderId: this.networkNode.p2pService.config?.id,
-          senderLabel: this.networkNode.p2pService.config?.label,
-          senderIp: this.networkNode.p2pService.config?.ip,
-          senderUrl: this.networkNode.p2pService.config?.url,
-          senderP2PPort: this.networkNode.p2pService.config?.port,
+          id: this.networkNode.config?.id,
+          label: this.networkNode.config?.label,
+          ip: this.networkNode.config?.ip,
+          url: this.networkNode.config?.url,
+          p2pPort: this.networkNode.p2pService.config?.port,
           webServicePort: this.networkNode.webService?.config?.port,
         };
 

@@ -60,11 +60,8 @@ class P2PService {
   }
 
   handleHandshake(ws, msg) {
-    if (!this.peers.has(msg.senderConfig?.senderId)) {
-      console.log(
-        "Adding to my connected peers list:",
-        msg.senderConfig?.senderId
-      );
+    if (!this.peers.has(msg.senderConfig?.id)) {
+      console.log("Adding to my connected peers list:", msg.senderConfig?.id);
       this.sendHandshake(ws);
     }
     this.connectPeer(ws, msg.senderConfig);
@@ -90,7 +87,7 @@ class P2PService {
           this.broadcast(msg);
           break;
         case "requestFullChain":
-          this.sendFullChain(msg.senderConfig.senderId);
+          this.sendFullChain(msg.senderConfig.id);
           break;
         case "fullChain":
           this.handleFullChain(msg);
@@ -103,7 +100,7 @@ class P2PService {
               const latestBlock = this.networkNode.blockchain.getLatestBlock();
               if (receivedBlock.index > latestBlock.index + 1) {
                 console.log("Longer chain detected.");
-                this.requestFullChain(msg.senderConfig.senderId);
+                this.requestFullChain(msg.senderConfig.id);
                 this.broadcast(msg);
               } else {
                 const isValidBlock =
@@ -136,11 +133,11 @@ class P2PService {
     const handshakeMessage = {
       type: "handshake",
       senderConfig: {
-        senderId: this.config?.id,
-        senderLabel: this.config?.label,
-        senderIp: this.config?.ip,
-        senderUrl: this.config?.url,
-        senderP2PPort: this.config?.port,
+        id: this.networkNode.config?.id,
+        label: this.networkNode.config?.label,
+        ip: this.networkNode.config?.ip,
+        url: this.networkNode.config?.url,
+        p2pPort: this.config?.port,
         webServicePort: this.networkNode?.webService?.config?.port,
       },
       messageId: nanoid(),
@@ -149,17 +146,17 @@ class P2PService {
   }
 
   connectPeer(ws, senderConfig) {
-    if (!this.peers.has(senderConfig.senderId)) {
-      this.peers.set(senderConfig.senderId, { ws: ws, config: senderConfig });
+    if (!this.peers.has(senderConfig.id)) {
+      this.peers.set(senderConfig.id, { ws: ws, config: senderConfig });
       console.log(
-        `Connected to a new peer with ID ${senderConfig.senderId}. Total peers: ${this.peers.size}`
+        `Connected to a new peer with ID ${senderConfig.id}. Total peers: ${this.peers.size}`
       );
     } else {
-      this.peers.set(senderConfig.senderId, { ws: ws, config: senderConfig });
+      this.peers.set(senderConfig.id, { ws: ws, config: senderConfig });
     }
     ws.on("close", () => {
-      console.log(`Peer ${senderConfig.senderId} disconnected.`);
-      this.peers.delete(senderConfig.senderId);
+      console.log(`Peer ${senderConfig.id} disconnected.`);
+      this.peers.delete(senderConfig.id);
     });
   }
 
@@ -191,7 +188,7 @@ class P2PService {
     const message = JSON.stringify({
       type: "newEntry",
       data: entry,
-      senderConfig: { senderId: this.config.id },
+      senderConfig: { id: this.networkNode.config.id },
       messageId: nanoid(),
     });
     this.broadcast(message);
@@ -201,7 +198,7 @@ class P2PService {
     const message = JSON.stringify({
       type: "newBlock",
       data: block.toSerializableObject(),
-      senderConfig: { senderId: this.config.id },
+      senderConfig: { id: this.networkNode.config.id },
       messageId: nanoid(),
     });
     this.broadcast(message);
@@ -209,7 +206,7 @@ class P2PService {
 
   broadcast(msg) {
     this.peers.forEach((peer, id) => {
-      if (id !== msg.senderConfig?.senderId) {
+      if (id !== msg.senderConfig?.id) {
         peer.ws.send(JSON.stringify(msg));
       }
     });
@@ -226,7 +223,7 @@ class P2PService {
   requestFullChain(senderId) {
     const request = {
       type: "requestFullChain",
-      senderConfig: { senderId: this.config.id },
+      senderConfig: { id: this.networkNode.config.id },
       messageId: nanoid(),
     };
     if (this.peers.has(senderId)) {
@@ -242,7 +239,7 @@ class P2PService {
       const fullChain = {
         type: "fullChain",
         data: this.networkNode.blockchain.chainToSerializableObject(),
-        senderConfig: { senderId: this.config.id },
+        senderConfig: { id: this.networkNode.config.id },
         messageId: nanoid(),
       };
       const peer = this.peers.get(receiverId);
