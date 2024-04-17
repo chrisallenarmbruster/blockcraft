@@ -215,59 +215,65 @@ class WebService {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 30;
         const sort = req.query.sort || "asc";
+        const scope = req.query.scope || "all";
         const blockchain = this.networkNode.blockchain;
-        let allEntries = blockchain.chain.flatMap((block) =>
-          Array.isArray(block.data)
-            ? block.data.map((entry) => ({ ...entry, blockIndex: block.index }))
-            : [{ data: block.data, blockIndex: block.index }]
-        );
-        if (sort === "desc") {
-          allEntries = allEntries.sort((a, b) => b.blockIndex - a.blockIndex);
+        let allEntries;
+
+        if (scope === "latest") {
+          const latestBlocks = blockchain.chain.slice(-10);
+          allEntries = latestBlocks.flatMap((block) =>
+            Array.isArray(block.data)
+              ? block.data.map((entry) => ({
+                  ...entry,
+                  blockIndex: block.index,
+                }))
+              : [{ data: block.data, blockIndex: block.index }]
+          );
+          if (allEntries.length > 30) {
+            allEntries = allEntries.slice(-30);
+          }
+        } else if (scope === "pending") {
+          allEntries = blockchain.dataHandler.getPendingEntries();
+          allEntries = allEntries.map((entry) => ({
+            ...entry,
+            blockIndex: "pending",
+          }));
         } else {
-          allEntries = allEntries.sort((a, b) => a.blockIndex - b.blockIndex);
+          // scope === "all"
+          allEntries = blockchain.chain.flatMap((block) =>
+            Array.isArray(block.data)
+              ? block.data.map((entry) => ({
+                  ...entry,
+                  blockIndex: block.index,
+                }))
+              : [{ data: block.data, blockIndex: block.index }]
+          );
+          const pendingEntries = blockchain.dataHandler.getPendingEntries();
+          allEntries = allEntries.concat(
+            pendingEntries.map((entry) => ({ ...entry, blockIndex: "pending" }))
+          );
         }
+
+        if (sort === "desc") {
+          allEntries.reverse();
+        }
+
+        const total = allEntries.length;
+        const pages = Math.ceil(total / limit);
         const startIndex = (page - 1) * limit;
         const endIndex = page * limit;
         const entries = allEntries.slice(startIndex, endIndex);
-        res.json(entries);
+        const meta = {
+          total,
+          pages,
+          currentPage: page,
+          pageSize: limit,
+          sort,
+          scope,
+        };
+        res.json({ entries, meta });
       } catch (error) {
         res.status(500).send("Failed to retrieve entries: " + error.message);
-      }
-    });
-
-    router.get("/entries/latest", (req, res) => {
-      try {
-        const blockchain = this.networkNode.blockchain;
-        const latestBlocks = blockchain.chain.slice(-10);
-        let latestEntries = latestBlocks.flatMap((block) =>
-          Array.isArray(block.data)
-            ? block.data.map((entry) => ({ ...entry, blockIndex: block.index }))
-            : [{ data: block.data, blockIndex: block.index }]
-        );
-        if (latestEntries.length > 30) {
-          latestEntries = latestEntries.slice(-30);
-        }
-        res.json(latestEntries.reverse());
-      } catch (error) {
-        res
-          .status(500)
-          .send("Failed to retrieve latest entries: " + error.message);
-      }
-    });
-
-    router.get("/entries/pending", (req, res) => {
-      try {
-        let pendingEntries =
-          this.networkNode.blockchain.dataHandler.getPendingEntries();
-        pendingEntries = pendingEntries.map((entry) => ({
-          ...entry,
-          blockIndex: "pending",
-        }));
-        res.json(pendingEntries.reverse());
-      } catch (error) {
-        res
-          .status(500)
-          .send("Failed to retrieve unchained entries: " + error.message);
       }
     });
 
