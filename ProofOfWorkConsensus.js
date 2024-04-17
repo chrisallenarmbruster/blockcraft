@@ -54,7 +54,7 @@ class ProofOfWorkConsensus extends ConsensusMechanism {
       index,
       data,
       previousHash,
-      blockCreator: this.blockchain.networkNode.p2pService.config.id,
+      blockCreator: this.blockchain.networkNode.config.id,
       difficulty: this.difficulty,
     });
     newBlock.setBlockchain(this.blockchain);
