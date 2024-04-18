@@ -260,13 +260,26 @@ class Blockchain extends EventEmitter {
     return this.chain[this.chain.length - 1];
   }
 
-  getLatestBlocks(numOfBlocks = 30) {
+  getLatestBlocks(limit = 30) {
+    const blocksToReturn = Math.min(limit, this.chain.length, 100);
+    const startIndex = Math.max(this.chain.length - blocksToReturn, 0);
+    return this.chainToSerializableObject().slice(startIndex);
+  }
+
+  getOldLatestBlocks(numOfBlocks = 30) {
     const blocksToReturn = Math.min(numOfBlocks, this.chain.length, 100);
     const startIndex = Math.max(this.chain.length - blocksToReturn, 0);
     return this.chainToSerializableObject().slice(startIndex).reverse();
   }
 
-  getBlocksRange(radius = 15, centerOnIndex = this.chain.length - 1) {
+  getBlocksRange(startIndex = 0, limit = 10) {
+    return this.chainToSerializableObject().slice(
+      Math.max(startIndex, 0),
+      Math.max(startIndex + limit, 0)
+    );
+  }
+
+  getOldBlocksRange(radius = 15, centerOnIndex = this.chain.length - 1) {
     centerOnIndex = Math.max(0, Math.min(centerOnIndex, this.chain.length - 1));
     let startIndex = Math.max(centerOnIndex - radius, 0);
     let endIndex = Math.min(centerOnIndex + radius + 1, this.chain.length);

@@ -131,6 +131,53 @@ class WebService {
     });
 
     router.get("/blocks", (req, res) => {
+      try {
+        const scope = req.query.scope || "all";
+        const sort = req.query.sort || "asc";
+        const page = parseInt(req.query.page || 1);
+        const pageLimit = parseInt(req.query.pageLimit || 30);
+        const recordLimit = parseInt(req.query.recordLimit || 100); // ignored by scope "all"
+        const startIndex = parseInt(req.query.startIndex || 0); // ignored by scopes "all" & "latest"
+        let allBlocks;
+
+        if (scope === "latest") {
+          allBlocks = this.networkNode.blockchain.getLatestBlocks(
+            Math.min(Number(recordLimit), 100)
+          );
+        } else if (scope === "range") {
+          allBlocks = this.networkNode.blockchain.getBlocksRange(
+            startIndex,
+            recordLimit
+          );
+        } else {
+          allBlocks = this.networkNode.blockchain.chainToSerializableObject();
+        }
+
+        if (sort === "desc") {
+          allBlocks.reverse();
+        }
+
+        const total = allBlocks.length;
+        const pages = Math.ceil(total / pageLimit);
+        const pageStartIndex = (page - 1) * pageLimit;
+        const pageEndIndex = page * pageLimit;
+        const blocks = allBlocks.slice(pageStartIndex, pageEndIndex);
+
+        const meta = {
+          scope,
+          sort,
+          total,
+          pages,
+          currentPage: page,
+          pageSize: pageLimit,
+        };
+        res.json({ blocks, meta });
+      } catch (error) {
+        res.status(500).send("Failed to retrieve blocks: " + error.message);
+      }
+    });
+
+    router.get("/old-blocks", (req, res) => {
       const { limit = 10, sort = "desc" } = req.query;
       let { startWithIndex } = req.query;
 
@@ -212,8 +259,8 @@ class WebService {
 
     router.get("/entries", (req, res) => {
       try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 30;
+        const page = parseInt(req.query.page || 1);
+        const limit = parseInt(req.query.limit || 30);
         const sort = req.query.sort || "asc";
         const scope = req.query.scope || "all";
         const blockchain = this.networkNode.blockchain;
