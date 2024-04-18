@@ -260,7 +260,7 @@ class WebService {
     router.get("/entries", (req, res) => {
       try {
         const page = parseInt(req.query.page || 1);
-        const limit = parseInt(req.query.limit || 30);
+        const pageLimit = parseInt(req.query.pageLimit || 30);
         const sort = req.query.sort || "asc";
         const scope = req.query.scope || "all";
         const blockchain = this.networkNode.blockchain;
@@ -306,17 +306,17 @@ class WebService {
         }
 
         const total = allEntries.length;
-        const pages = Math.ceil(total / limit);
-        const startIndex = (page - 1) * limit;
-        const endIndex = page * limit;
-        const entries = allEntries.slice(startIndex, endIndex);
+        const pages = Math.ceil(total / pageLimit);
+        const pageStartIndex = (page - 1) * pageLimit;
+        const pageEndIndex = page * pageLimit;
+        const entries = allEntries.slice(pageStartIndex, pageEndIndex);
         const meta = {
+          scope,
+          sort,
           total,
           pages,
           currentPage: page,
-          pageSize: limit,
-          sort,
-          scope,
+          pageSize: pageLimit,
         };
         res.json({ entries, meta });
       } catch (error) {
