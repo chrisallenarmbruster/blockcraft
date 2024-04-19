@@ -95,7 +95,7 @@ class DataHandler {
 
   getEntry(entryId) {
     if (this.entryPool.has(entryId)) {
-      const entry = this.entryPool.get(entryId);
+      const entry = { ...this.entryPool.get(entryId) };
       entry.blockIndex = "pending";
       return entry;
     }
@@ -105,8 +105,9 @@ class DataHandler {
       for (let i = 0; i < chain.length; i++) {
         for (let entry of chain[i].data) {
           if (entry.entryId === entryId) {
-            entry.blockIndex = i;
-            return entry;
+            const entryCopy = { ...entry };
+            entryCopy.blockIndex = i;
+            return entryCopy;
           }
         }
       }
