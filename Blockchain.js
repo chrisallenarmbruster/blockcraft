@@ -92,6 +92,10 @@ class Blockchain extends EventEmitter {
     }
   }
 
+  getEntry(entryId) {
+    return this.dataHandler.getEntry(entryId);
+  }
+
   async addBlock(data) {
     let block;
     if (this.blockCreationInProgress) {
@@ -279,16 +283,19 @@ class Blockchain extends EventEmitter {
     );
   }
 
-  getOldBlocksRange(radius = 15, centerOnIndex = this.chain.length - 1) {
-    centerOnIndex = Math.max(0, Math.min(centerOnIndex, this.chain.length - 1));
-    let startIndex = Math.max(centerOnIndex - radius, 0);
-    let endIndex = Math.min(centerOnIndex + radius + 1, this.chain.length);
-
-    return this.chainToSerializableObject().slice(startIndex, endIndex);
+  getBlockByIndex(index) {
+    const block = this.chainToSerializableObject()[index];
+    return block !== undefined ? block : null;
   }
 
-  getBlockByIndex(index) {
-    return this.chainToSerializableObject()[index];
+  getBlockByHash(hash) {
+    const chain = this.chainToSerializableObject();
+    for (let i = 0; i < chain.length; i++) {
+      if (chain[i].hash === hash) {
+        return chain[i];
+      }
+    }
+    return null;
   }
 
   async replaceChain(newChain) {

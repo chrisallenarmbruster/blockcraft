@@ -22,11 +22,8 @@ import { nanoid } from "nanoid";
 class DataHandler {
   constructor(config) {
     this.config = config;
-    this.queuedEntries = [];
-    this.pendingEntries = [];
     this.entryPool = new Map();
     this.blockchain = null;
-    this.entryCache = new Set();
   }
 
   setBlockchain(blockchainInstance) {
@@ -96,6 +93,28 @@ class DataHandler {
     return Array.from(this.entryPool.values());
   }
 
+  getEntry(entryId) {
+    if (this.entryPool.has(entryId)) {
+      const entry = this.entryPool.get(entryId);
+      entry.blockIndex = "pending";
+      return entry;
+    }
+
+    if (this.blockchain) {
+      const chain = this.blockchain.chainToSerializableObject();
+      for (let i = 0; i < chain.length; i++) {
+        for (let entry of chain[i].data) {
+          if (entry.entryId === entryId) {
+            entry.blockIndex = i;
+            return entry;
+          }
+        }
+      }
+    }
+
+    return null;
+  }
+
   validatePendingEntry(entry) {
     entry.data.toUpperCase().includes("BOGUS");
     return entry.data.toUpperCase().includes("BOGUS") ? false : true;
@@ -111,24 +130,6 @@ class DataHandler {
     // Placeholder for entry transformation
     // This method can be overridden by subclasses to implement specific entry transformation logic
     throw new Error("transformEntry method must be implemented");
-  }
-
-  deepCopy(obj) {
-    if (obj === null || typeof obj !== "object") {
-      return obj;
-    }
-
-    if (typeof obj === "function") {
-      return new Function("return " + obj.toString())();
-    }
-
-    let tempObj = Array.isArray(obj) ? [] : {};
-
-    for (let key in obj) {
-      tempObj[key] = this.deepCopy(obj[key]);
-    }
-
-    return tempObj;
   }
 }
 

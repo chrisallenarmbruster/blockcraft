@@ -15,13 +15,13 @@
  *
  * Routes:
  * GET /blockchain - Returns the entire blockchain.
- * GET /chain-integrity - Validates the blockchain and returns the result.
- * GET /block/:index - Returns the block at the specified index.
- * GET /latest-block - Returns the latest block in the blockchain.
- * POST /add-entry - Queues a new entry to be added to the blockchain. The entry data is provided in the request body.
- * GET /unchained-entries - Returns all queued entries that have not yet been added to a block.
- * GET /chained-entries - Returns all entries that have been added to the blockchain.
- *
+ * GET /chain/integrity - Validates the blockchain and returns the result.
+ * GET /chain/info - Returns information about the blockchain.
+ * GET /blocks/:identifier - Returns the block having the specified index or hash.
+ * GET /entries/:entryId - Returns the entry with the specified ID.
+ * GET /entries - Returns all entries in the blockchain.
+ * POST /entries - Queues a new entry to be added to the blockchain. The entry data is provided in the request body.
+ 
  */
 
 import express from "express";
@@ -52,7 +52,7 @@ class WebService {
 
     router.get("/blockchain", (req, res) => {
       if (this.networkNode && this.networkNode.blockchain) {
-        res.json(this.networkNode.blockchain.chain);
+        res.json(this.networkNode.blockchain.chainToSerializableObject());
       } else {
         res.status(503).send("Blockchain service is unavailable");
       }
@@ -100,33 +100,30 @@ class WebService {
       res.json(validationResult);
     });
 
-    router.get("/blocks/latest", (req, res) => {
-      const { count = 30 } = req.query;
-      const numOfBlocks = Math.min(Number(count), 100);
-      try {
-        const blocks = this.networkNode.blockchain.getLatestBlocks(numOfBlocks);
-        res.json(blocks);
-      } catch (error) {
-        console.error("Failed to fetch the latest blocks:", error);
-        res.status(500).json({ error: "Failed to fetch the latest blocks" });
-      }
-    });
+    router.get("/blocks/:identifier", (req, res) => {
+      const { identifier } = req.params;
 
-    router.get("/blocks/range", (req, res) => {
-      const radius = parseInt(req.query.radius, 10) || 15;
-      const centerOnIndex = req.query.centerOnIndex
-        ? parseInt(req.query.centerOnIndex, 10)
-        : undefined;
+      if (/^[0-9a-fA-F]{64}$/.test(identifier)) {
+        const block = this.networkNode.blockchain.getBlockByHash(identifier);
+        if (!block) {
+          return res.status(404).send("Block not found");
+        }
+        res.json(block);
+      } else {
+        const index = parseInt(identifier);
+        if (isNaN(index)) {
+          return res
+            .status(400)
+            .send(
+              "Invalid identifier - must be a numeric index or a 64-character hash"
+            );
+        }
 
-      try {
-        const blocksRange = this.networkNode.blockchain.getBlocksRange(
-          radius,
-          centerOnIndex
-        );
-        res.json(blocksRange);
-      } catch (error) {
-        console.error("Failed to get blocks range:", error);
-        res.status(500).send("Internal Server Error");
+        const block = this.networkNode.blockchain.getBlockByIndex(index);
+        if (!block) {
+          return res.status(404).send("Block not found");
+        }
+        res.json(block);
       }
     });
 
@@ -177,84 +174,14 @@ class WebService {
       }
     });
 
-    router.get("/old-blocks", (req, res) => {
-      const { limit = 10, sort = "desc" } = req.query;
-      let { startWithIndex } = req.query;
-
-      if (sort === "asc" && startWithIndex === undefined) {
-        startWithIndex = "0";
-      } else if (startWithIndex === undefined) {
-        startWithIndex = this.networkNode.blockchain
-          .getLatestBlock()
-          .index.toString();
+    router.get("/entries/:entryId", (req, res) => {
+      const entryId = req.params.entryId;
+      const entry = this.networkNode.blockchain.getEntry(entryId);
+      if (!entry) {
+        return res.status(404).send("Entry not found");
       }
 
-      const limitNum = Math.min(Math.max(parseInt(limit, 10), 1), 100);
-      const startWithIndexNum = parseInt(startWithIndex, 10);
-
-      let filteredChain = this.networkNode.blockchain
-        .chainToSerializableObject()
-        .filter((block) => {
-          return sort === "asc"
-            ? block.index >= startWithIndexNum
-            : block.index <= startWithIndexNum;
-        });
-
-      filteredChain =
-        sort === "asc"
-          ? filteredChain.sort((a, b) => a.index - b.index)
-          : filteredChain.sort((a, b) => b.index - a.index);
-
-      const blocks = filteredChain.slice(0, limitNum);
-
-      let lastIndexInResponse =
-        blocks.length > 0 ? blocks[blocks.length - 1].index : null;
-
-      const nextIndexReference =
-        blocks.length > 0
-          ? sort === "asc"
-            ? blocks[blocks.length - 1].index
-            : blocks[0].index
-          : startWithIndexNum;
-
-      const meta = {
-        requestedLimit: limitNum,
-        returnedBlocks: blocks.length,
-        lastIndexInResponse,
-        nextIndexReference:
-          sort === "asc"
-            ? nextIndexReference + 1
-            : nextIndexReference - limitNum < 0
-            ? null
-            : nextIndexReference - limitNum,
-        sort,
-      };
-
-      res.json({ blocks, meta });
-    });
-
-    router.get("/block/:index", (req, res) => {
-      console.log(`API Call on Index ${req.params.index}`);
-      const index = parseInt(req.params.index);
-      if (isNaN(index)) {
-        return res.status(400).send("Invalid index");
-      }
-
-      const block = this.networkNode.blockchain.getBlockByIndex(index);
-      if (!block) {
-        return res.status(404).send("Block not found");
-      }
-
-      res.json(block);
-    });
-
-    router.get("/latest-block", (req, res) => {
-      const latestBlock = this.networkNode.blockchain.getLatestBlock();
-      if (!latestBlock) {
-        return res.status(404).send("No blocks found in the blockchain");
-      }
-
-      res.json(latestBlock);
+      res.json(entry);
     });
 
     router.get("/entries", (req, res) => {
@@ -320,6 +247,19 @@ class WebService {
         };
         res.json({ entries, meta });
       } catch (error) {
+        res.status(500).send("Failed to retrieve entries: " + error.message);
+      }
+    });
+
+    router.post("/entries", (req, res) => {
+      if (!req.body || Object.keys(req.body).length === 0) {
+        return res.status(400).send("No data provided");
+      }
+      try {
+        this.networkNode.blockchain.addEntry(req.body);
+        res.status(201).send("Entry added successfully");
+      } catch (error) {
+        res.status(500).send("Error adding entry: " + error.message);
         res.status(500).send("Failed to retrieve entries: " + error.message);
       }
     });
