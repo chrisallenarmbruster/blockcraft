@@ -198,11 +198,18 @@ async function blockchain(config) {
         to: accounts.random().publicKeyCompressed,
         amount: Math.floor(Math.random() * 100),
         type: "crypto",
+        initiationTimestamp: Date.now(),
         data: `${config.nodeId.toUpperCase()}-Entry ${entryCount}`,
       };
 
       const entryHash = hashEntry(unsignedEntry);
-      const signature = signEntry(unsignedEntry, senderKeyPair.privateKey);
+
+      const entryToSign = {
+        ...unsignedEntry,
+        hash: entryHash,
+      };
+
+      const signature = signEntry(entryToSign, senderKeyPair.privateKey);
 
       const signedEntry = {
         ...unsignedEntry,

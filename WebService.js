@@ -180,8 +180,9 @@ class WebService {
       if (!entry) {
         return res.status(404).send("Entry not found");
       }
+      const isValid = this.networkNode.blockchain.validateEntry(entry);
 
-      res.json(entry);
+      res.json({ ...entry, isValid });
     });
 
     router.get("/entries", (req, res) => {

@@ -92,6 +92,10 @@ class Blockchain extends EventEmitter {
     }
   }
 
+  async validateEntry(entry) {
+    return this.dataHandler.validateEntry(entry);
+  }
+
   getEntry(entryId) {
     return this.dataHandler.getEntry(entryId);
   }

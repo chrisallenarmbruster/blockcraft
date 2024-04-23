@@ -19,6 +19,10 @@
  *
  */
 import { nanoid } from "nanoid";
+import crypto from "crypto";
+import elliptic from "elliptic";
+const EC = elliptic.ec;
+const ec = new EC("secp256k1");
 class DataHandler {
   constructor(config) {
     this.config = config;
@@ -116,13 +120,85 @@ class DataHandler {
     return null;
   }
 
+  // validatePendingEntry(entry) {
+  //   entry.data.toUpperCase().includes("BOGUS");
+  //   return entry.data.toUpperCase().includes("BOGUS") ? false : true;
+  //   // return this.config.validateEntry(entry);
+  //   // Placeholder for entry validation
+  //   // This method can be overridden by subclasses to implement specific entry validation logic
+  //   throw new Error("validateEntry method must be implemented");
+  // }
+
+  hashEntry(entry) {
+    const entryToHash = {
+      from: entry.from,
+      to: entry.to,
+      amount: entry.amount,
+      type: entry.type,
+      initiationTimestamp: entry.initiationTimestamp,
+      data: entry.data,
+    };
+
+    const hash = crypto.createHash("SHA256");
+    hash.update(JSON.stringify(entryToHash));
+    return hash.digest("hex");
+  }
+
+  verifySignature(entry) {
+    const signedEntry = JSON.stringify({
+      from: entry.from,
+      to: entry.to,
+      amount: entry.amount,
+      type: entry.type,
+      initiationTimestamp: entry.initiationTimestamp,
+      data: entry.data,
+      hash: entry.hash,
+    });
+
+    const keyPair = ec.keyFromPublic(entry.from, "hex");
+    const verifier = crypto.createVerify("SHA256");
+    verifier.update(signedEntry);
+    verifier.end();
+    return keyPair.verify(signedEntry, entry.signature);
+  }
+
   validatePendingEntry(entry) {
-    entry.data.toUpperCase().includes("BOGUS");
-    return entry.data.toUpperCase().includes("BOGUS") ? false : true;
-    // return this.config.validateEntry(entry);
-    // Placeholder for entry validation
-    // This method can be overridden by subclasses to implement specific entry validation logic
-    throw new Error("validateEntry method must be implemented");
+    const MAX_TIME_DIFF = 60000;
+
+    const recalculatedHash = this.hashEntry(entry);
+    if (recalculatedHash !== entry.hash) {
+      console.error("Hash mismatch, entry data may have been tampered with.");
+      return false;
+    }
+
+    if (!this.verifySignature(entry)) {
+      console.error("Signature verification failed.");
+      return false;
+    }
+
+    const currentTime = Date.now();
+    const entryTime = entry.initiationTimestamp;
+    if (Math.abs(currentTime - entryTime) > MAX_TIME_DIFF) {
+      console.error("Entry timestamp is not within the acceptable range.");
+      return false;
+    }
+
+    return true;
+  }
+
+  validateEntry(entry) {
+    const recalculatedHash = this.hashEntry(entry);
+    if (recalculatedHash !== entry.hash) {
+      console.error("Hash mismatch, entry data may have been tampered with.");
+      return false;
+    }
+
+    if (!this.verifySignature(entry)) {
+      console.error("Signature verification failed.");
+      return false;
+    }
+
+    return true;
   }
 
   transformPendingEntry(entry) {
