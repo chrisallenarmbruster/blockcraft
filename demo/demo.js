@@ -14,6 +14,7 @@ import {
   P2PService,
   WebService,
 } from "../blockcraft.js";
+import { get } from "http";
 
 const configFilePath = process.argv[2];
 let config = JSON.parse(fs.readFileSync(configFilePath, "utf8"));
@@ -170,6 +171,31 @@ async function blockchain(config) {
     return hash.digest("hex");
   }
 
+  function computeAccountBalance(account) {
+    let balance = 0;
+    balance += node.blockchain
+      .getEntriesReceivedByAccount(account)
+      .reduce((acc, entry) => {
+        return acc + entry.amount;
+      }, 0);
+    balance -= node.blockchain
+      .getEntriesSentByAccount(account)
+      .reduce((acc, entry) => {
+        return acc + entry.amount;
+      }, 0);
+    return balance;
+  }
+
+  setTimeout(() => {
+    const account =
+      "032cf276cc6ec175a7fa7dfae8c8e652a0cb161bf8ffdaffc4a66f46071e51090b";
+    const entries = [
+      ...node.blockchain.getEntriesReceivedByAccount(account),
+      ...node.blockchain.getEntriesSentByAccount(account),
+    ];
+    console.log("entries", entries);
+  }, 3000);
+
   const intervalId = setInterval(() => {
     if (entryCount >= numberEntriesToAdd) {
       clearInterval(intervalId);
@@ -179,34 +205,41 @@ async function blockchain(config) {
       );
 
       const senderKeyPair = accounts.random();
+      const accountBalance = computeAccountBalance(
+        senderKeyPair.publicKeyCompressed
+      );
 
-      const unsignedEntry = {
-        from: senderKeyPair.publicKeyCompressed,
-        to: accounts.random().publicKeyCompressed,
-        amount: Math.floor(Math.random() * 100),
-        type: "crypto",
-        initiationTimestamp: Date.now(),
-        data: `${config.nodeId.toUpperCase()}-Entry ${entryCount}`,
-      };
+      if (accountBalance > 0) {
+        let amount = Math.floor(Math.random() * accountBalance);
+        amount = amount === 0 ? accountBalance : amount;
+        const unsignedEntry = {
+          from: senderKeyPair.publicKeyCompressed,
+          to: accounts.random().publicKeyCompressed,
+          amount: amount,
+          type: "crypto",
+          initiationTimestamp: Date.now(),
+          data: `${config.nodeId.toUpperCase()}-Entry ${entryCount}`,
+        };
 
-      const entryHash = hashEntry(unsignedEntry);
+        const entryHash = hashEntry(unsignedEntry);
 
-      const entryToSign = {
-        ...unsignedEntry,
-        hash: entryHash,
-      };
+        const entryToSign = {
+          ...unsignedEntry,
+          hash: entryHash,
+        };
 
-      const signature = signEntry(entryToSign, senderKeyPair.privateKey);
+        const signature = signEntry(entryToSign, senderKeyPair.privateKey);
 
-      const signedEntry = {
-        ...unsignedEntry,
-        hash: entryHash,
-        signature: signature,
-      };
+        const signedEntry = {
+          ...unsignedEntry,
+          hash: entryHash,
+          signature: signature,
+        };
 
-      node.blockchain.addEntry(signedEntry);
+        node.blockchain.addEntry(signedEntry);
 
-      entryCount++;
+        entryCount++;
+      }
     }
   }, millisecondsBetweenEntries);
 

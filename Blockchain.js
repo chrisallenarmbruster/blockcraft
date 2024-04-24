@@ -102,6 +102,36 @@ class Blockchain extends EventEmitter {
     return this.dataHandler.getEntry(entryId);
   }
 
+  getEntriesSentByAccount(account) {
+    let allEntries = this.chain.flatMap((block) =>
+      Array.isArray(block.data)
+        ? block.data.map((entry) => ({
+            ...entry,
+            blockIndex: block.index,
+          }))
+        : [{ data: block.data, blockIndex: block.index }]
+    );
+    const pendingEntries = this.dataHandler.getPendingEntries();
+    allEntries = [...pendingEntries, ...allEntries];
+    const result = allEntries.filter((entry) => entry.from === account);
+    return result;
+  }
+
+  getEntriesReceivedByAccount(account) {
+    let allEntries = this.chain.flatMap((block) =>
+      Array.isArray(block.data)
+        ? block.data.map((entry) => ({
+            ...entry,
+            blockIndex: block.index,
+          }))
+        : [{ data: block.data, blockIndex: block.index }]
+    );
+    const pendingEntries = this.dataHandler.getPendingEntries();
+    allEntries = [...pendingEntries, ...allEntries];
+    const result = allEntries.filter((entry) => entry.to === account);
+    return result;
+  }
+
   async addBlock(data) {
     let block;
     if (this.blockCreationInProgress) {
