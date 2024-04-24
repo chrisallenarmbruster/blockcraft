@@ -13,94 +13,71 @@ import {
   StorageHandler,
   P2PService,
   WebService,
-} from "./blockcraft.js";
+} from "../blockcraft.js";
 
 const configFilePath = process.argv[2];
 let config = JSON.parse(fs.readFileSync(configFilePath, "utf8"));
 
-// let config = {};
-// for (let i = 2; i < process.argv.length; i += 2) {
-//   let key = process.argv[i];
-//   let value = process.argv[i + 1];
-//   if (key.startsWith("-")) {
-//     config[key.substring(1)] = value;
-//   }
-// }
-
-// "true" === config.p2pAutoStart
-//   ? (config.p2pAutoStart = true)
-//   : (config.p2pAutoStart = false);
-
-// config.p2pPort = parseInt(config.p2pPort);
-// config.webPort = parseInt(config.webPort);
-// config.seedPeers = JSON.parse(config.seedPeers);
-// config.testMessageDelay = parseInt(config.testMessageDelay);
-// config.difficulty = parseInt(config.difficulty);
-// config.reward = parseInt(config.reward);
-// config.minEntriesPerBlock = parseInt(config.minEntriesPerBlock);
-// config.genesisTimestamp = parseInt(config.genesisTimestamp);
-// config.genesisEntries = JSON.parse(config.genesisEntries);
-
 const accounts = [
   {
     privateKey:
-      "29913f9985e8e2527de4f60d30c9e00718ad9f09a17e523b53155eb4caa027a9",
+      "eb25c7091e6d1085596924e0c45dca79492c754ced32fe156ef3cf8241ab36fc",
     publicKeyCompressed:
-      "03938a3f78b121f92c4eab3a8ce35574e57f863ed75ce637ae1400cd33b7d99e4a",
+      "03b5f4f8ea6eb0d146a3e9a2a0dd89c0124acd5a980a230d097bf6794a85d0d879",
   },
   {
     privateKey:
-      "5b4d508d994487a960ca6bcb2e457a48bd5c5e0c3bf81ded9d72f432d94d50d8",
+      "ef4f978f9dfe98b3da6c195f10ef08a40d230f4278cb5d7eff0a68154c049213",
     publicKeyCompressed:
-      "03c610d43ea158eb15d7ad3129e9d0c34c58f7c52b2afa93abc5616c11b439e6c8",
+      "03a010ab53e15ec2f56c1f83dcb7fddbc80334fb5aeda42346580208be6be0c8d6",
   },
   {
     privateKey:
-      "d3bac06590120ad854365d26fd782e9f014cdcc5cc6435427c005c16757dc413",
+      "bf57ea21283cf44ed224c0e737356ed39b49312089348d6bc8cd4eaee717de4f",
     publicKeyCompressed:
-      "02f9745a70591442d139d4d244a2ab5b8f170081cc3f4d603e2972535402e6577a",
+      "0305fbfef5295b9e13a6a1c6208b93bbedbc9d259e8b5e5956b64acf21ab5600c4",
   },
   {
     privateKey:
-      "7c335dd16a5e6ca7e5a23b242afb58cd2827405ed07f48bb41704e4923f74fce",
+      "eee366f4e97ec8d5cad68948ab3b668924c92b4193c53439c206a542bc2f1f73",
     publicKeyCompressed:
-      "0243e91ee7de0bf23400eb7a38e8a48a8b65f28e643200769e7b7b0ce0ba96b4ba",
+      "02572dff346ccd699e043839e98fe4414512080ec6821afd9ceb4edf47c7953ed7",
   },
   {
     privateKey:
-      "957ec60108edbf844c0990bf36c9273fc243c4d14361b9a7013b83b75500639d",
+      "b960bd23fc35aedc01f4a4211549c82cb507d3630e40cd363a91d5bdeef0cd16",
     publicKeyCompressed:
-      "035bdeedfcf74b4b0e1102b3de81b27abc0d3815bebbc01fd81a85796c5bef25c6",
+      "021829f5f2d714bcec448f8019ffd43e267088ba42408483d7d2d1257f8d5a639b",
   },
   {
     privateKey:
-      "7498a29c649d0e696ac640694425c9cf8ee668e18ef3ebef689494908755b7fb",
+      "30c34382d8fca736bf3459a21a3f1e2e2e01813a6d1934b1e398eba56a17a3d4",
     publicKeyCompressed:
-      "0267906d0547ac4cf33ac14e9f8469ab49f8a7b9edb8df7176ae0d3ed8cfef4477",
+      "027097754984f873f435d6acc434affd0e36c3530d685be10d3b9d068be0666866",
   },
   {
     privateKey:
-      "669ad6449b1d5034450be1e7cf6e8a4013f12a550e5f28485c0322a7147af11c",
+      "0e3fbd351b598100b7cbb1cfb616160c7e9b78f1a87eeacff8addc921768b430",
     publicKeyCompressed:
-      "021cd9bf94677db290325f2377161c94d2a5b42d4d9b2003d728c29f8f16710d08",
+      "03797f816e17fd9ef1c0f521d7a9b608d83e1fffb64e3157b8ce186f3b58b4189e",
   },
   {
     privateKey:
-      "960748a4ae1043df4a2721b521a0527c0cfa0672efde13458ce50769520813fd",
+      "e828647aefb983ae104d670579dd20463429bbd408b8cd4bc98b36d3b0706015",
     publicKeyCompressed:
-      "02ceb7c11f7f0bc17e7054a0033f569932e359b36dab108970c795189a7d290a29",
+      "032cf276cc6ec175a7fa7dfae8c8e652a0cb161bf8ffdaffc4a66f46071e51090b",
   },
   {
     privateKey:
-      "4e7124857580d59f41f8e669516b5816e17df8c744ab0a9fc6baff38f399e6fc",
+      "30ea59802cd036c618fc334ce8ee4d9630cf177326817b1535babad4d161b39f",
     publicKeyCompressed:
-      "02b116b1a6d8fc9db9a01b3856a271f983d0d87de0f50c438b908a2cc50cad62cf",
+      "02e31edc5c89d85ea2984afcc04603caf3b5f40a94b295fa780a74be872d208c4d",
   },
   {
     privateKey:
-      "4ce5355f938437d4671666795745182d4cefff365f04a5534ea2536fb3544b75",
+      "4d065cdb79226487e28e6b0a16673ad9fd3bbe7f690abfc4e8e380863f3d164e",
     publicKeyCompressed:
-      "02b4b0f37594a9a73dd76fe4a78e724417c8946be109aeb0921451cee6c6895be9",
+      "03845f109f65359905763171ed9afd3ebc0f0accbda25d2a268099dd8ccfd90d9b",
   },
 ];
 

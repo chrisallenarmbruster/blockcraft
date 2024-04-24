@@ -23,7 +23,7 @@ class ProofOfWorkBlock extends Block {
     timestamp,
     blockCreator,
     nonce = 0,
-    difficulty = 4,
+    difficulty = 5,
   }) {
     super({ index, data, previousHash, timestamp, blockCreator });
     this.nonce = nonce;

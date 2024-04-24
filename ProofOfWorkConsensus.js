@@ -72,12 +72,13 @@ class ProofOfWorkConsensus extends ConsensusMechanism {
     return newBlock;
   }
 
-  createGenesisBlock() {
+  createGenesisBlock(config) {
     return new ProofOfWorkBlock({
       index: 0,
-      data: "Genesis Block",
+      data: config.genesisEntries,
       previousHash: "0",
-      blockCreator: this.blockchain.networkNode.p2pService.config.id,
+      timestamp: config.genesisTimestamp,
+      blockCreator: "Genesis Block",
       difficulty: this.difficulty,
     });
   }

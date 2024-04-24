@@ -25,7 +25,7 @@ class ConsensusMechanism {
     this.blockchain = blockchainInstance;
   }
 
-  createGenesisBlock() {
+  createGenesisBlock(config) {
     // Placeholder for genesis block creation
     // This method can be overridden by subclasses to implement specific genesis block logic
     throw new Error("createGenesisBlock method must be implemented");

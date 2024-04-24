@@ -75,7 +75,9 @@ class Blockchain extends EventEmitter {
   }
 
   async createGenesisBlock() {
-    const genesisBlock = this.consensusMechanism.createGenesisBlock();
+    const genesisBlock = this.consensusMechanism.createGenesisBlock(
+      this.config
+    );
     await this.storageHandler.saveBlock(genesisBlock);
     return genesisBlock;
   }

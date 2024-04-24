@@ -193,7 +193,7 @@ class DataHandler {
       return false;
     }
 
-    if (!this.verifySignature(entry)) {
+    if (entry.blockIndex !== 0 && !this.verifySignature(entry)) {
       console.error("Signature verification failed.");
       return false;
     }
