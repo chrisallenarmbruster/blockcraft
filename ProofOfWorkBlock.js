@@ -22,10 +22,11 @@ class ProofOfWorkBlock extends Block {
     previousHash,
     timestamp,
     blockCreator,
+    ownerAddress,
     nonce = 0,
     difficulty = 5,
   }) {
-    super({ index, data, previousHash, timestamp, blockCreator });
+    super({ index, data, previousHash, timestamp, blockCreator, ownerAddress });
     this.nonce = nonce;
     this.difficulty = difficulty;
     this.hash = this.computeHash();
@@ -47,7 +48,7 @@ class ProofOfWorkBlock extends Block {
       .update(
         `${this.index}${this.previousHash}${this.timestamp}${
           this.blockCreator
-        }${JSON.stringify(this.data)}${this.nonce}`
+        }${this.ownerAddress}${JSON.stringify(this.data)}${this.nonce}`
       )
       .digest("hex");
   }

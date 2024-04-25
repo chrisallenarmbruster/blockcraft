@@ -23,12 +23,14 @@ class Block {
     previousHash,
     timestamp = Date.now(),
     blockCreator,
+    ownerAddress,
   }) {
     this.index = index;
     this.data = data;
     this.previousHash = previousHash;
     this.timestamp = timestamp;
     this.blockCreator = blockCreator;
+    this.ownerAddress = ownerAddress;
     this.hash = this.computeHash();
   }
 
@@ -43,6 +45,7 @@ class Block {
       previousHash: this.previousHash,
       timestamp: this.timestamp,
       blockCreator: this.blockCreator,
+      ownerAddress: this.ownerAddress,
       hash: this.hash,
     };
   }
@@ -53,7 +56,7 @@ class Block {
       .update(
         `${this.index}${this.previousHash}${this.timestamp}${
           this.blockCreator
-        }${JSON.stringify(this.data)}`
+        }${this.ownerAddress}${JSON.stringify(this.data)}`
       )
       .digest("hex");
   }

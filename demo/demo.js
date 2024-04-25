@@ -82,6 +82,33 @@ const accounts = [
   },
 ];
 
+const networkNodeAccounts = [
+  {
+    privateKey:
+      "67a522d73b9e9a0bf50d356ab68f0b79a095e283371aaf9dbca7159a54af69b0",
+    publicKeyCompressed:
+      "03b629b92d58fd5abe58e2322a681e8c76e363a5691f27845ca6b9d5e7dee696cc",
+  },
+  {
+    privateKey:
+      "74529a9708b281c8451e885cc5dfee01f8af6e09a2ab15a63b48bc566cd21779",
+    publicKeyCompressed:
+      "024821805babaf7ccd225fc7e4854be0bfa1efc923bd9dfa974f8ab3047dc5f89a",
+  },
+  {
+    privateKey:
+      "aa8f4402585881e319c649dc716b6b6459d695074de749aa6a5fd7b103f99e40",
+    publicKeyCompressed:
+      "02d903494ac25f4d84f912274d1b39c1c9c4d20a85c3c0aeab53ad7a8c4cd3ebdb",
+  },
+  {
+    privateKey:
+      "25794138f901158a61f630b08e81fd1e5aa4d338534d2e538c7bfcb4c161838d",
+    publicKeyCompressed:
+      "02d445a9280410ccfc5c5479323b09d74603cda341f51f5542368ac89b17fc446a",
+  },
+];
+
 Array.prototype.random = function () {
   return this[Math.floor(Math.random() * this.length)];
 };
@@ -92,31 +119,18 @@ async function blockchain(config) {
   const millisecondsBetweenEntries = 3000;
 
   let blockchain = new Blockchain(
-    new ProofOfWorkConsensus({ difficulty: config.difficulty || 6 }),
-    new StandardMiningReward({ fixedReward: config.reward || 100 }),
-    new DataHandler({ minEntriesPerBlock: config.minEntriesPerBlock || 3 }),
-    new StorageHandler({ storagePath: config.storagePath || "blockchain.txt" }),
-    {
-      blockchainName: config.blockchainName || "Blockcraft",
-      genesisTimestamp: config.genesisTimestamp,
-      genesisEntries: config.genesisEntries,
-    }
+    new ProofOfWorkConsensus(config.consensusMechanism),
+    new StandardMiningReward(config.incentiveModel),
+    new DataHandler(config.dataHandler),
+    new StorageHandler(config.storageHandler),
+    config.blockchain
   );
 
   let node = new NetworkNode(
     blockchain,
-    new P2PService({
-      port: config.p2pPort,
-      autoStart: config.p2pAutoStart,
-      seedPeers: config.seedPeers,
-    }),
-    new WebService({ port: config.webPort || 3000 }),
-    {
-      id: config.nodeId,
-      label: config.nodeLabel,
-      ip: config.nodeIp,
-      url: config.nodeUrl,
-    }
+    new P2PService(config.p2pService),
+    new WebService(config.webService),
+    config.networkNode
   );
 
   node.blockchain.on("blockchainLoaded", (chain) => {
@@ -186,22 +200,12 @@ async function blockchain(config) {
     return balance;
   }
 
-  setTimeout(() => {
-    const account =
-      "032cf276cc6ec175a7fa7dfae8c8e652a0cb161bf8ffdaffc4a66f46071e51090b";
-    const entries = [
-      ...node.blockchain.getEntriesReceivedByAccount(account),
-      ...node.blockchain.getEntriesSentByAccount(account),
-    ];
-    console.log("entries", entries);
-  }, 3000);
-
   const intervalId = setInterval(() => {
     if (entryCount >= numberEntriesToAdd) {
       clearInterval(intervalId);
     } else {
       console.log(
-        `\nAdding \"${config.nodeId.toUpperCase()}-Entry ${entryCount}\" to queue.`
+        `\nAdding \"${config.networkNode.id.toUpperCase()}-Entry ${entryCount}\" to queue.`
       );
 
       const senderKeyPair = accounts.random();
@@ -218,7 +222,7 @@ async function blockchain(config) {
           amount: amount,
           type: "crypto",
           initiationTimestamp: Date.now(),
-          data: `${config.nodeId.toUpperCase()}-Entry ${entryCount}`,
+          data: `${config.networkNode.id.toUpperCase()}-Entry ${entryCount}`,
         };
 
         const entryHash = hashEntry(unsignedEntry);

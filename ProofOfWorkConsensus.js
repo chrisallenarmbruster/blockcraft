@@ -55,6 +55,7 @@ class ProofOfWorkConsensus extends ConsensusMechanism {
       data,
       previousHash,
       blockCreator: this.blockchain.networkNode.config.id,
+      ownerAddress: this.blockchain.networkNode.config.ownerAddress,
       difficulty: this.difficulty,
     });
     newBlock.setBlockchain(this.blockchain);
@@ -79,6 +80,7 @@ class ProofOfWorkConsensus extends ConsensusMechanism {
       previousHash: "0",
       timestamp: config.genesisTimestamp,
       blockCreator: "Genesis Block",
+      ownerAddress: "Genesis Block",
       difficulty: this.difficulty,
     });
   }
