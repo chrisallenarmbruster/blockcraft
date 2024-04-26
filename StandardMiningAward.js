@@ -14,6 +14,7 @@
  */
 
 import IncentiveModel from "./IncentiveModel.js";
+import crypto from "crypto";
 
 class StandardMiningReward extends IncentiveModel {
   constructor(config) {
@@ -27,12 +28,32 @@ class StandardMiningReward extends IncentiveModel {
   }
 
   distributeIncentive(block, incentive) {
-    // Distribute the reward to the miner (block creator)
-    // In practice, this would involve creating a transaction
-    // For demonstration, just logging the distribution
-    // Update the blockchain state to reflect this reward distribution
-    // This might involve updating the miner's balance or adding a transaction to the block
-    const miner = block.blockCreator; // Replace with logic to determine who mined the block
+    const miner = block.ownerAddress;
+
+    const unhashedEntry = {
+      from: "INCENTIVE",
+      to: block.ownerAddress,
+      amount: incentive,
+      type: "crypto",
+      initiationTimestamp: Date.now(),
+      data: `Block creation incentive for block #${block.index}.`,
+    };
+
+    function hashEntry(entry) {
+      const hash = crypto.createHash("SHA256");
+      hash.update(JSON.stringify(entry));
+      return hash.digest("hex");
+    }
+
+    const entryHash = hashEntry(unhashedEntry);
+
+    const hashedEntry = {
+      ...unhashedEntry,
+      hash: entryHash,
+      signature: null,
+    };
+
+    this.blockchain.addEntry(hashedEntry);
     return {
       block,
       incentive,
@@ -60,6 +81,7 @@ class StandardMiningReward extends IncentiveModel {
         result.blockIndex = targetBlockIndex;
         result.incentiveDetails = {
           blockCreator: targetBlock.blockCreator,
+          minterAddress: targetBlock.ownerAddress,
           incentiveAmount: incentive,
         };
       }

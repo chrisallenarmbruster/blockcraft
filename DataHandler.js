@@ -145,21 +145,25 @@ class DataHandler {
   }
 
   verifySignature(entry) {
-    const signedEntry = JSON.stringify({
-      from: entry.from,
-      to: entry.to,
-      amount: entry.amount,
-      type: entry.type,
-      initiationTimestamp: entry.initiationTimestamp,
-      data: entry.data,
-      hash: entry.hash,
-    });
+    if (entry.from !== "ICO" && entry.from !== "INCENTIVE") {
+      const signedEntry = JSON.stringify({
+        from: entry.from,
+        to: entry.to,
+        amount: entry.amount,
+        type: entry.type,
+        initiationTimestamp: entry.initiationTimestamp,
+        data: entry.data,
+        hash: entry.hash,
+      });
 
-    const keyPair = ec.keyFromPublic(entry.from, "hex");
-    const verifier = crypto.createVerify("SHA256");
-    verifier.update(signedEntry);
-    verifier.end();
-    return keyPair.verify(signedEntry, entry.signature);
+      const keyPair = ec.keyFromPublic(entry.from, "hex");
+      const verifier = crypto.createVerify("SHA256");
+      verifier.update(signedEntry);
+      verifier.end();
+      return keyPair.verify(signedEntry, entry.signature);
+    } else {
+      return true;
+    }
   }
 
   validatePendingEntry(entry) {
