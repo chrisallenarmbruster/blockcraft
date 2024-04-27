@@ -254,16 +254,15 @@ console.clear();
 
 blockchain(config);
 
-/* Run this file with the following command:
+/* From within this directory run this file with the following command:
   
-node test.js -nodeId node1 -nodeLabel "Node 1" -nodeIp 127.0.0.1 -nodeUrl localhost -p2pPort 6001 -p2pAutoStart true -seedPeers '["ws://localhost:6002","ws://localhost:6003"]' -webPort 3000 -difficulty 5 -reward 100 -minEntriesPerBlock 3 -storagePath "blockchain.txt"
+node demo.js demoConfig1.json
 
-try the following in separate terminals:
+To run multiple nodes do the following in separate terminals:
 
-    if (!minedSuccessfully) {
-node test.js -nodeId node1 -nodeLabel "Node 1" -nodeIp 127.0.0.1 -nodeUrl localhost -p2pPort 6001 -p2pAutoStart true -seedPeers '["ws://localhost:6002","ws://localhost:6003","ws://localhost:6004"]' -webPort 3000 -difficulty 5 -reward 100 -minEntriesPerBlock 7 -storagePath "blockchain.txt" -genesisTimestamp 1640995200000
-node test.js -nodeId node2 -nodeLabel "Node 2" -nodeIp 127.0.0.1 -nodeUrl localhost -p2pPort 6002 -p2pAutoStart true -seedPeers '["ws://localhost:6001","ws://localhost:6003","ws://localhost:6004"]' -webPort 3001 -difficulty 5 -reward 100 -minEntriesPerBlock 7 -storagePath "blockchain2.txt" -genesisTimestamp 1640995200000 -genesisEntries '["Genesis Block"]'
-node test.js -nodeId node3 -nodeLabel "Node 3" -nodeIp 127.0.0.1 -nodeUrl localhost -p2pPort 6003 -p2pAutoStart true -seedPeers '["ws://localhost:6001","ws://localhost:6002","ws://localhost:6004"]' -webPort 3002 -difficulty 5 -reward 100 -minEntriesPerBlock 7 -storagePath "blockchain3.txt"
-node test.js -nodeId node4 -nodeLabel "Node 4" -nodeIp 127.0.0.1 -nodeUrl localhost -p2pPort 6004 -p2pAutoStart true -seedPeers '["ws://localhost:6001","ws://localhost:6002","ws://localhost:6003"]' -webPort 3003 -difficulty 5 -reward 100 -minEntriesPerBlock 7 -storagePath "blockchain4.txt"
+node demo.js demoConfig1.json
+node demo.js demoConfig2.json
+node demo.js demoConfig3.json
+node demo.js demoConfig4.json
 
 */

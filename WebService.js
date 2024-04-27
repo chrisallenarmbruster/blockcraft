@@ -185,14 +185,15 @@ class WebService {
       res.json({ ...entry, isValid });
     });
 
-    router.get("/entries", (req, res) => {
+    router.get("/entries", async (req, res) => {
       try {
         const page = parseInt(req.query.page || 1);
         const pageLimit = parseInt(req.query.pageLimit || 30);
         const sort = req.query.sort || "asc";
         const scope = req.query.scope || "all";
+        const publicKey = req.query.publicKey;
         const blockchain = this.networkNode.blockchain;
-        let allEntries;
+        let allEntries = [];
 
         if (scope === "latest") {
           const latestBlocks = blockchain.chain.slice(-10);
@@ -204,9 +205,6 @@ class WebService {
                 }))
               : [{ data: block.data, blockIndex: block.index }]
           );
-          if (allEntries.length > 30) {
-            allEntries = allEntries.slice(-30);
-          }
         } else if (scope === "pending") {
           allEntries = blockchain.dataHandler.getPendingEntries();
           allEntries = allEntries.map((entry) => ({
@@ -214,7 +212,6 @@ class WebService {
             blockIndex: "pending",
           }));
         } else {
-          // scope === "all"
           allEntries = blockchain.chain.flatMap((block) =>
             Array.isArray(block.data)
               ? block.data.map((entry) => ({
@@ -223,10 +220,29 @@ class WebService {
                 }))
               : [{ data: block.data, blockIndex: block.index }]
           );
+
           const pendingEntries = blockchain.dataHandler.getPendingEntries();
           allEntries = allEntries.concat(
             pendingEntries.map((entry) => ({ ...entry, blockIndex: "pending" }))
           );
+        }
+
+        if (publicKey) {
+          allEntries = allEntries.filter(
+            (entry) => entry.from === publicKey || entry.to === publicKey
+          );
+        }
+
+        let netAmount = 0;
+        if (publicKey) {
+          allEntries.forEach((entry) => {
+            if (entry.to === publicKey) {
+              netAmount += entry.amount;
+            }
+            if (entry.from === publicKey) {
+              netAmount -= entry.amount;
+            }
+          });
         }
 
         if (sort === "desc") {
@@ -245,6 +261,8 @@ class WebService {
           pages,
           currentPage: page,
           pageSize: pageLimit,
+          queriedPublicKey: publicKey || "N/A",
+          netAmount: publicKey ? netAmount : undefined,
         };
         res.json({ entries, meta });
       } catch (error) {
