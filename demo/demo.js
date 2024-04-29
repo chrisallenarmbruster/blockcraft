@@ -1,3 +1,28 @@
+/*
+ * This script demonstrates a blockchain implementation using my Blockcraft library.
+ * It creates a blockchain with a Proof of Work consensus mechanism, a standard mining reward,
+ * and a data and storage handler. It also sets up a network node with P2P and web services.
+ *
+ * The script reads a configuration file passed as a command line argument. It then creates
+ * a number of accounts and network node accounts, and adds a method to the Array prototype
+ * to get a random element.
+ *
+ * The main function, `blockchain`, creates the blockchain and network node, and sets up
+ * several event listeners to log the progress of the blockchain. It also defines several
+ * helper functions for signing and hashing entries, and computing account balances.
+ *
+ * The function then starts an interval that adds entries to the blockchain until a certain
+ * number of entries have been added. The process is kept running indefinitely with a second
+ * interval.
+ *
+ * The script ends by clearing the console and starting the blockchain with the provided
+ * configuration.
+ *
+ * To run this script, use the command `node demo.js <config-file>`, where `<config-file>`
+ * is the path to a JSON configuration file. To run multiple "connected" nodes, run the
+ * command in separate terminals with different configuration files.
+ */
+
 import fs from "fs";
 import crypto from "crypto";
 import elliptic from "elliptic";
@@ -258,7 +283,7 @@ blockchain(config);
   
 node demo.js demoConfig1.json
 
-To run multiple nodes do the following in separate terminals:
+To run multiple "connected" nodes do the following in separate terminals:
 
 node demo.js demoConfig1.json
 node demo.js demoConfig2.json

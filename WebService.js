@@ -245,6 +245,18 @@ class WebService {
           });
         }
 
+        if (publicKey) {
+          allEntries = allEntries.filter(
+            (entry) => entry.from === publicKey || entry.to === publicKey
+          );
+
+          if (allEntries.length === 0) {
+            return res
+              .status(404)
+              .send("No entries found for the provided publicKey.");
+          }
+        }
+
         if (sort === "desc") {
           allEntries.reverse();
         }
