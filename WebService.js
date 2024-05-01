@@ -23,10 +23,13 @@
  * POST /entries - Queues a new entry to be added to the blockchain. The entry data is provided in the request body.
  
  */
-
+import { createRequire } from "module";
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
+
+const require = createRequire(import.meta.url);
+
 class WebService {
   constructor(config = {}) {
     this.config = config;
@@ -323,11 +326,11 @@ class WebService {
   }
 
   serveFrontend() {
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
+    const blockcraftExplorerPath = require.resolve("blockcraft-explorer");
+    const blockcraftExplorerDir = path.dirname(blockcraftExplorerPath);
     const frontendPath = path.join(
-      __dirname,
-      "node_modules/blockcraft-explorer/dist"
+      blockcraftExplorerDir.replace("/src", ""),
+      "dist"
     );
     this.app.use(express.static(frontendPath));
 
