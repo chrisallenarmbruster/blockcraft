@@ -27,6 +27,7 @@ import { createRequire } from "module";
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
+import cors from "cors";
 
 const require = createRequire(import.meta.url);
 
@@ -35,6 +36,7 @@ class WebService {
     this.config = config;
     this.networkNode = null;
     this.app = express();
+    this.app.use(cors());
     this.app.use(express.json());
 
     this.initializeRoutes();
