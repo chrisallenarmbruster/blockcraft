@@ -75,13 +75,18 @@ class WebService {
           chainInfo.difficulty = chain[chain.length - 1].difficulty;
         }
 
-        if (chain[chain.length - 1].hasOwnProperty("nonce")) {
+        if (
+          chain.length > 1 &&
+          chain[chain.length - 1].hasOwnProperty("nonce")
+        ) {
           const nonce = chain[chain.length - 1].nonce;
           chainInfo.hashRate =
             nonce /
             ((chain[chain.length - 1].timestamp -
               chain[chain.length - 2].timestamp) /
               1000);
+        } else {
+          chainInfo.hashRate = 0;
         }
 
         if (typeof this.networkNode.blockchain.getTotalSupply === "function") {
