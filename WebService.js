@@ -198,6 +198,7 @@ class WebService {
         const publicKey = req.query.publicKey;
         const blockchain = this.networkNode.blockchain;
         let allEntries = [];
+        let netAmount;
 
         if (scope === "latest") {
           const latestBlocks = blockchain.chain.slice(-10);
