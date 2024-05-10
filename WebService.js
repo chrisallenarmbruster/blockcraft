@@ -191,7 +191,7 @@ class WebService {
     router.get("/entries", async (req, res) => {
       try {
         const page = parseInt(req.query.page || 1);
-        const pageLimit = parseInt(req.query.pageLimit || 30);
+        const pageLimit = req.query.pageLimit || 30;
         const sort = req.query.sort || "asc";
         const scope = req.query.scope || "all";
         const publicKey = req.query.publicKey;
@@ -234,10 +234,8 @@ class WebService {
           allEntries = allEntries.filter(
             (entry) => entry.from === publicKey || entry.to === publicKey
           );
-        }
 
-        let netAmount = 0;
-        if (publicKey) {
+          let netAmount = 0;
           allEntries.forEach((entry) => {
             if (entry.to === publicKey) {
               netAmount += entry.amount;
@@ -246,18 +244,18 @@ class WebService {
               netAmount -= entry.amount;
             }
           });
-        }
-
-        if (publicKey) {
-          allEntries = allEntries.filter(
-            (entry) => entry.from === publicKey || entry.to === publicKey
-          );
 
           if (allEntries.length === 0) {
             return res
               .status(404)
               .send("No entries found for the provided publicKey.");
           }
+        }
+
+        if (pageLimit === "all") {
+          pageLimit = allEntries.length;
+        } else {
+          pageLimit = parseInt(pageLimit);
         }
 
         if (sort === "desc") {
