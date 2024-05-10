@@ -191,7 +191,7 @@ class WebService {
     router.get("/entries", async (req, res) => {
       try {
         const page = parseInt(req.query.page || 1);
-        const pageLimit = req.query.pageLimit || 30;
+        let pageLimit = req.query.pageLimit || 30;
         const sort = req.query.sort || "asc";
         const scope = req.query.scope || "all";
         const publicKey = req.query.publicKey;
