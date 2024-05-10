@@ -139,6 +139,7 @@ class WebService {
         const recordLimit = parseInt(req.query.recordLimit || 100); // ignored by scope "all"
         const startIndex = parseInt(req.query.startIndex || 0); // ignored by scopes "all" & "latest"
         let allBlocks;
+        let netAmount;
 
         if (scope === "latest") {
           allBlocks = this.networkNode.blockchain.getLatestBlocks(
@@ -235,7 +236,7 @@ class WebService {
             (entry) => entry.from === publicKey || entry.to === publicKey
           );
 
-          let netAmount = 0;
+          netAmount = 0;
           allEntries.forEach((entry) => {
             if (entry.to === publicKey) {
               netAmount += entry.amount;
