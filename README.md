@@ -4,6 +4,20 @@
 
 Welcome to the Blockcraft, my blockchain toolkit crafted from scratch to empower developers, innovators, and students. This toolkit is designed for building decentralized applications (dApps) that leverage the full potential of blockchain technology. Starting from the ground up, Blockcraft has been tailored for composition, allowing developers to mix and match different components for consensus mechanisms, incentive models, data handling, and storage, ensuring flexibility and customization in building blockchain applications.
 
+## Blockcraft Ecosystem 🌐
+
+The Blockcraft ecosystem consists of several related repositories that together form a toolkit for building decentralized blockchain applications (dApps). Here's a brief overview:
+
+- **Blockcraft**: This is the core repository, providing the fundamental building blocks for creating, customizing, and scaling blockchain applications. It includes the `Blockchain` and `NetworkNode` classes, along with their associated services and handlers.
+
+- **[Blockcraft Explorer](https://github.com/chrisallenarmbruster/blockcraft-explorer)**: This repository contains the code for the Blockcraft Explorer, a web interface that allows users to interact with the blockchain, view transactions, and monitor network activity. It is included as part of the Blockcraft package and can be downloaded separately for customization.
+
+- **[Blockcraft Vault](https://github.com/chrisallenarmbruster/blockcraft-vault)**: The Blockcraft Vault is a secure wallet and progressive web application for managing and transacting with your Blockcraft blockchain.
+
+- **[Blockcraft Coin Demo](https://github.com/chrisallenarmbruster/blockcraft-coin-demo)**: This repository provides an example of how to create a simple cryptocurrency using the Blockcraft toolkit. It's a great starting point for developers looking to learn how to build blockchain applications with Blockcraft.
+
+Each of these repositories plays a crucial role in the Blockcraft Ecosystem, and they are designed to work together seamlessly to enable the creation of robust, scalable, and customizable dApps.
+
 ## Key Features
 
 🚀 **From Scratch to Advanced**: Developed from the ground up with a focus on composability, Blockcraft is not just another blockchain toolkit. It's an extensible solution for crafting blockchain apps.
