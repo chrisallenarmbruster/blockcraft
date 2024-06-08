@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "description": "Blockcraft: A cutting-edge blockchain toolkit designed for developers and innovators. This versatile package provides a robust set of tools and utilities to simplify the development of blockchain applications. Whether you're building decentralized apps, smart contracts, or exploring new consensus mechanisms, BlockCraft offers a flexible and user-friendly platform to bring your blockchain visions to life. Ideal for both blockchain beginners and seasoned cryptonauts, BlockCraft is your go-to toolkit for navigating the exciting world of blockchain technology.",
-  "main": "blockcraft.js",
+  "main": "src/blockcraft.js",
   "scripts": {
     "test": "echo \"Error: no test specified\""
   },
