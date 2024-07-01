@@ -17,6 +17,11 @@ The Blockcraft ecosystem consists of several related repositories that together 
 - **[Blockcraft Coin Demo](https://github.com/chrisallenarmbruster/blockcraft-coin-demo)**: This repository provides an example of how to create a simple cryptocurrency using the Blockcraft toolkit. It's a great starting point for developers looking to learn how to build blockchain applications with Blockcraft.
 
 Each of these repositories plays a crucial role in the Blockcraft Ecosystem, and they are designed to work together seamlessly to enable the creation of robust, scalable, and customizable dApps.
+<br>
+<br>
+![Blockcraft Diagram](blockcraft-diagram.png)
+<br>
+<br>
 
 ## Key Features
 
